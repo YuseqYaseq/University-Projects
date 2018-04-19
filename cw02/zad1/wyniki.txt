@@ -1,0 +1,194 @@
+Test 1 - copy sys
+Rozmiar: 4 10000
+Czas rzeczywisty: 0.000000
+Czas usera: 0.000000
+Czas systemowy: 0.000000
+
+Test 2 - copy sys
+Rozmiar: 512 500
+Czas rzeczywisty: 0.000000
+Czas usera: 0.000000
+Czas systemowy: 0.000000
+
+Test 3 - copy sys
+Rozmiar: 4096 15
+Czas rzeczywisty: 0.030000
+Czas usera: 0.000000
+Czas systemowy: 0.000000
+
+Test 4 - copy sys
+Rozmiar: 8192 10
+Czas rzeczywisty: 0.070000
+Czas usera: 0.000000
+Czas systemowy: 0.010000
+
+Test 5 - copy lib
+Rozmiar: 4 10000
+Czas rzeczywisty: 0.000000
+Czas usera: 0.000000
+Czas systemowy: 0.000000
+
+Test 6 - copy lib
+Rozmiar: 512 500
+Czas rzeczywisty: 0.010000
+Czas usera: 0.000000
+Czas systemowy: 0.000000
+
+Test 7 - copy lib
+Rozmiar: 4096 15
+Czas rzeczywisty: 0.000000
+Czas usera: 0.000000
+Czas systemowy: 0.000000
+
+Test 8 - copy lib
+Rozmiar: 8192 10
+Czas rzeczywisty: 0.000000
+Czas usera: 0.000000
+Czas systemowy: 0.000000
+
+Test 9 - copy sys
+Rozmiar: 4 20000
+Czas rzeczywisty: 0.000000
+Czas usera: 0.000000
+Czas systemowy: 0.000000
+
+Test 10 - copy sys
+Rozmiar: 512 800
+Czas rzeczywisty: 0.000000
+Czas usera: 0.000000
+Czas systemowy: 0.000000
+
+Test 11 - copy sys
+Rozmiar: 4096 20
+Czas rzeczywisty: 0.040000
+Czas usera: 0.000000
+Czas systemowy: 0.000000
+
+Test 12 - copy sys
+Rozmiar: 8192 20
+Czas rzeczywisty: 0.060000
+Czas usera: 0.000000
+Czas systemowy: 0.010000
+
+Test 13 - copy lib
+Rozmiar: 4 20000
+Czas rzeczywisty: 0.000000
+Czas usera: 0.000000
+Czas systemowy: 0.000000
+
+Test 14 - copy lib
+Rozmiar: 512 800
+Czas rzeczywisty: 0.000000
+Czas usera: 0.000000
+Czas systemowy: 0.000000
+
+Test 15 - copy lib
+Rozmiar: 4096 20
+Czas rzeczywisty: 0.020000
+Czas usera: 0.000000
+Czas systemowy: 0.000000
+
+Test 16 - copy lib
+Rozmiar: 8192 20
+Czas rzeczywisty: 0.000000
+Czas usera: 0.000000
+Czas systemowy: 0.000000
+
+Test 17 - sort sys
+Rozmiar: 4 10000
+Czas rzeczywisty: 0.000000
+Czas usera: 0.000000
+Czas systemowy: 0.000000
+
+Test 18 - sort sys
+Rozmiar: 512 500
+Czas rzeczywisty: 0.340000
+Czas usera: 0.020000
+Czas systemowy: 0.110000
+
+Test 19 - sort sys
+Rozmiar: 4096 15
+Czas rzeczywisty: 8.520000
+Czas usera: 2.100000
+Czas systemowy: 5.850000
+
+Test 20 - sort sys
+Rozmiar: 8192 10
+Czas rzeczywisty: 32.200000
+Czas usera: 8.150000
+Czas systemowy: 23.610000
+
+Test 21 - sort lib
+Rozmiar: 4 10000
+Czas rzeczywisty: 0.000000
+Czas usera: 0.000000
+Czas systemowy: 0.000000
+
+Test 22 - sort lib
+Rozmiar: 512 500
+Czas rzeczywisty: 0.180000
+Czas usera: 0.030000
+Czas systemowy: 0.030000
+
+Test 23 - sort lib
+Rozmiar: 4096 15
+Czas rzeczywisty: 3.710000
+Czas usera: 1.290000
+Czas systemowy: 2.110000
+
+Test 24 - sort lib
+Rozmiar: 8192 10
+Czas rzeczywisty: 13.960000
+Czas usera: 5.300000
+Czas systemowy: 8.130000
+
+Test 25 - sort sys
+Rozmiar: 4 20000
+Czas rzeczywisty: 0.000000
+Czas usera: 0.000000
+Czas systemowy: 0.000000
+
+Test 26 - sort sys
+Rozmiar: 512 800
+Czas rzeczywisty: 0.250000
+Czas usera: 0.040000
+Czas systemowy: 0.090000
+
+Test 27 - sort sys
+Rozmiar: 4096 20
+Czas rzeczywisty: 8.600000
+Czas usera: 2.200000
+Czas systemowy: 5.910000
+
+Test 28 - sort sys
+Rozmiar: 8192 20
+Czas rzeczywisty: 32.210000
+Czas usera: 8.500000
+Czas systemowy: 23.330000
+
+Test 29 - sort lib
+Rozmiar: 4 20000
+Czas rzeczywisty: 0.000000
+Czas usera: 0.000000
+Czas systemowy: 0.000000
+
+Test 30 - sort lib
+Rozmiar: 512 800
+Czas rzeczywisty: 0.190000
+Czas usera: 0.020000
+Czas systemowy: 0.060000
+
+Test 31 - sort lib
+Rozmiar: 4096 20
+Czas rzeczywisty: 3.870000
+Czas usera: 1.270000
+Czas systemowy: 2.290000
+
+Test 32 - sort lib
+Rozmiar: 8192 20
+Czas rzeczywisty: 14.130000
+Czas usera: 5.570000
+Czas systemowy: 8.030000
+
+Wnioski:
+Ponieważ operacja kopiowania była liniowa odbyła się bardzo szybko i była praktycznie natychmiastowa dla wszystkich testów. Operacja sortowania nie dość, że miała złożoność kwadratową ze względu na zastosowany algorytm, to jeszcze przy każdej iteracji zapisywała do pliku co bardzo spowolniło całość. Można zauważyć, że dla niewielkiej liczby rekordów nawet ogromne zwiększenie ich rozmiarów (maksymalnie do 20 tysięcy) praktycznie nie wpłynęło na czas sortowania. Wynika to z faktu, że porównywanie bierze pod uwagę jedynie pierwszy element rekordu, a jedno zapisanie dużej ilości danych jest znacznie szybsze od wielkrotnego zapisu niewielkiej ilości danych. Co więcej zastosowanie funkcji bibliotecznych C zmniejszyło czas sortowania ok. dwukrotnie.
