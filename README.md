@@ -2,13 +2,13 @@
 Tasks completed for Operating Systems class.
 
 ## Table of contents
-* Memory management, libraries, measuring time
-* Files
-* Processes
-* Signals
-* Pipelines
-* IPC - Interprocess Communication
-* -
-* -
-* -
-* -
+1. Memory management, libraries, measuring time
+2. Files
+3. Processes
+4. Signals
+5. Pipelines
+6. IPC - Interprocess Communication
+7. -
+8. -
+9. -
+10. -
