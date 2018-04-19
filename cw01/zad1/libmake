@@ -1,0 +1,16 @@
+CC=g++
+
+all: library libso.so liba.a .PHONY
+
+library: library.c
+	$(CC) -fPIC -c $^ -Wall
+
+libso.so: library.o
+	$(CC) -shared -o $@ $^
+
+liba.a: library.o
+	ar rcs $@ $^
+
+.PHONY: clean
+clean:
+	rm -rf *.o

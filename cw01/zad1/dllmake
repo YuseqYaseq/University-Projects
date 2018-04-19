@@ -1,0 +1,13 @@
+CC=gcc
+
+all: library libdll.so .PHONY
+
+library: dll_library.c
+	$(CC) -fPIC -c $^ -Wall
+
+libdll.so: dll_library.o
+	$(CC) -shared -o $@ $^ -rdynamic
+
+.PHONY: clean
+clean:
+	rm -rf *.o

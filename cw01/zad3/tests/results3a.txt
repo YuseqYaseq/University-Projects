@@ -1,0 +1,30 @@
+Alokowanie dynamiczne
+
+Biblioteka statyczna:
+Czas rzeczywisty: 0.340000
+Czas usera: 0.180000
+Czas systemowy: 0.010000
+
+Biblioteka dynamiczna ladowana przy starcie programu:
+Czas rzeczywisty: 0.350000
+Czas usera: 0.190000
+Czas systemowy: 0.000000
+
+Biblioteka dynamiczna ladowana w trakcie dzialania programu:
+Czas rzeczywisty: 0.000000
+Czas usera: 0.000000
+Czas systemowy: 0.000000
+
+Alokowanie statyczne
+
+Biblioteka statyczna:
+Czas rzeczywisty: 0.340000
+Czas usera: 0.180000
+Czas systemowy: 0.010000
+
+Biblioteka dynamiczna:
+Czas rzeczywisty: 0.330000
+Czas usera: 0.200000
+Czas systemowy: 0.000000
+
+Jak widac czasy wykonywania programow są porownywalne poza dll który zadzialal szybciej. Biblioteka statyczna dodatkowo obciazania w niewielkim stopniu system.
