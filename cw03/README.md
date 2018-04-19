@@ -1,6 +1,6 @@
 # Zestaw 3 #
 ### Tworzenie procesów. Œrodowisko procesu, sterowanie procesami.
-##Zadanie 1.
+## Zadanie 1.
 Zmodyfikuj zadanie 2. z poprzedniego zestawu w taki sposób, i¿ przeszukiwanie w ka¿dym z odnalezionych (pod)katalogow powinno odbywaæ sie w osobnym procesie.  
 ## Zadanie 2. Prosty interpreter zadañ wsadowych
 W ramach æwiczenia nale¿y napisaæ prosty interpreter zadañ wsadowych. Interpreter przyjmuje w argumencie nazwê pliku zawieraj¹cego zadanie wsadowe i wykonuje wszystkie polecenia z tego pliku. Polecenia w pliku wsadowym maja postac: 
