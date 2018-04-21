@@ -37,7 +37,7 @@ int main(int c, char* v[]){
         FILE* d;
         if(finish && IsEmpty(sq)){
             printf("Queue is empty - shutting down.\n");
-            break;
+            onExit();
         }
         ReadMessage(&sq, &m);
         

@@ -16,8 +16,8 @@ typedef struct msg_buf {
 void RemoveQueue(int* queue){
     if(*queue == 0)return;
     if(msgctl(*queue, IPC_RMID, NULL) < 0){
-        perror(strerror(errno));
-        fprintf(stderr, "failed to remove the queue!\n");
+        //perror(strerror(errno));
+        //fprintf(stderr, "failed to remove the queue!\n");
         return;
     }
     *queue = 0;

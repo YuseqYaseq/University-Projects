@@ -66,6 +66,10 @@ int main(int c, char* v[]){
             printf("ok\n");
             break;
         }else continue;
+        if(!CheckQueue("server", 10)){
+            printf("Connection lost. Shutting down.\n");
+            onExit();
+        }
         SendMessage(&sq, &m);
         ReadMessage(&cq, &m);
         printf("%s\n", m.mtext);
