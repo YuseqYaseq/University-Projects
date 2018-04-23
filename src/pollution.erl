@@ -10,7 +10,7 @@
 -author("Joseph").
 
 %% API
--export([createMonitor/0, addStation/3, addValue/5, removeValue/4, getOneValue/4, getStationMean/3, getDailyMean/3]).
+-export([createMonitor/0, addStation/3, addValue/5, removeValue/4, getOneValue/4, getStationMean/3, getDailyMean/3, getDailyAverageDataCount/2]).
 
 -record(coord, {x, y}).
 -record(monitor, {coords = #{}, names = #{}}).
@@ -71,4 +71,15 @@ getDailyMean(#monitor{names = N}, Date, Type) ->
   case Y of
     0 -> 0;
     _ -> X/Y
+  end.
+
+getDailyAverageDataCount(#monitor{names = N}, Name) ->
+  {NumOfUniqueDates, _} = maps:fold(fun({_, Date}, _, {Am, ListOfFoundDates}) ->
+    case lists:member(Date, ListOfFoundDates) of
+      true -> {Am, ListOfFoundDates};
+      _ -> {Am + 1, ListOfFoundDates ++ [Date]}
+    end end, {0,[]}, maps:get(Name, N)),
+  case NumOfUniqueDates of
+    0 -> 0;
+    _ -> maps:size(maps:get(Name, N)) / NumOfUniqueDates
   end.
