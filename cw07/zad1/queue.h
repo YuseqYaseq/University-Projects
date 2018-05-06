@@ -6,7 +6,7 @@
 #include "lib.h"
 
 struct Queue{
-    int elems[10];
+    int elems[500];
     int size;
     int queueIn;
     int queueOut;

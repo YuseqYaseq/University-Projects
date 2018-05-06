@@ -7,7 +7,7 @@ key_t CreateKey(char* name, int num){
     if(k == -1){
         fprintf(stderr, "Failed to create a new key!\n");
         perror(strerror(errno));
-        exit(-1);
+        onExit(0);
     }
     return k;
 }
@@ -17,7 +17,7 @@ int CreateSemaphores(key_t k, int numOfSems){
     if(semid == -1){
         fprintf(stderr, "Failed to create semaphores!\n");
         perror(strerror(errno));
-        exit(-1);
+        onExit(0);
     }
     union semun init;
     init.array = (unsigned short*) malloc(numOfSems*sizeof(unsigned short));
@@ -41,7 +41,7 @@ int GetSemaphores(key_t key){
     if (semid == -1) {
         fprintf(stderr, "Failed to access semaphores\n");
         perror(strerror(errno));
-        exit(-1);
+        onExit(0);
     }
     return semid;
 }
@@ -51,7 +51,7 @@ int CreateSharedMem(key_t k, int size){
     if(shmid == -1){
         fprintf(stderr, "Failed to create shared memory!\n");
         perror(strerror(errno));
-        exit(-1);
+        onExit(0);
     }
     return shmid;
 }
@@ -62,18 +62,19 @@ int GetSharedMem(key_t key){
     if (shmid == -1) {
         fprintf(stderr, "Failed to access shared memory\n");
         perror(strerror(errno));
-        exit(-1);
+        onExit(0);
     }
     return shmid;
 }
 
+//void ReleaseSharedMem(
 
 int* GetMemPointer(int shmid){
     int* data = (int*)shmat(shmid, NULL, 0);
     if(data == (int*)(-1)) {
         fprintf(stderr, "Failed to access shared memory!\n");
         perror(strerror(errno));
-        exit(-1);
+        onExit(0);
     }
     return data;
 }
@@ -91,8 +92,9 @@ int IsZero(int semid, int n){
     ops[0].sem_num = n;
     ops[0].sem_op = 0;
     ops[0].sem_flg = IPC_NOWAIT;
-    semop(semid, ops, 1);
-    if(errno == EAGAIN)return 1;
+    if(semop(semid, ops, 1) < 0){
+        if(errno == EAGAIN)return 1;
+    }
     return 0;
 }
 
