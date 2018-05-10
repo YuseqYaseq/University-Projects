@@ -21,7 +21,7 @@ createMonitor() -> #monitor{}.
 addStation(#monitor{coords = C, names = N}, {X, Y}, Name) ->
   case {maps:is_key(#coord{x = X, y = Y}, C), maps:is_key(Name, N)} of
     {false, false} -> #monitor{coords = maps:put(#coord{x = X, y = Y}, Name, C), names = maps:put(Name, #{}, N)};
-    _ -> throw("Station already exists!")
+    _ -> throw(station_already_exists)
   end.
 
 addValue(#monitor{coords = C, names = N}, {X, Y}, Date, Type, Value) ->
@@ -30,7 +30,7 @@ addValue(#monitor{coords = C, names = N}, {X, Y}, Date, Type, Value) ->
 addValue(#monitor{coords = C, names = N}, Name, Date, Type, Value) ->
   case maps:is_key({Type, Date}, maps:get(Name, N)) of
     false -> #monitor{coords = C, names = maps:put(Name, maps:put({Type, Date}, Value, maps:get(Name, N)), N)};
-    _ -> throw("Value already exists!")
+    _ -> throw(value_already_exists)
   end.
 
 removeValue(#monitor{coords = C, names = N}, {X, Y}, Date, Type) ->
@@ -39,7 +39,7 @@ removeValue(#monitor{coords = C, names = N}, {X, Y}, Date, Type) ->
 removeValue(#monitor{coords = C, names = N}, Name, Date, Type) ->
   case maps:is_key({Type, Date}, maps:get(Name, N)) of
     true -> #monitor{coords = C, names = maps:put(Name, maps:remove({Type, Date}, maps:get(Name, N)), N)};
-    _ -> throw("There is no such value!")
+    _ -> throw(no_such_value)
   end.
 
 getOneValue(#monitor{coords = C, names = N}, {X, Y}, Date, Type) ->
