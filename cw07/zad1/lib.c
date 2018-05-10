@@ -93,9 +93,9 @@ int IsZero(int semid, int n){
     ops[0].sem_op = 0;
     ops[0].sem_flg = IPC_NOWAIT;
     if(semop(semid, ops, 1) < 0){
-        if(errno == EAGAIN)return 1;
+        if(errno == EAGAIN)return 0;
     }
-    return 0;
+    return 1;
 }
 
 void WaitTillZero(int semid, int n){

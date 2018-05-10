@@ -49,6 +49,7 @@ int main(int c, char* v[]){
     data = (struct Queue*)GetMemPointer(shmid);
     QInit(data, N);
     Add(semid, QUEUE_ID, 1);
+    Add(semid, BARBER_ID, 1);
     while(1){
         //printf("1\n");
         Add(semid, QUEUE_ID, -1);
@@ -57,6 +58,7 @@ int main(int c, char* v[]){
         //printf("v = %d\n", v);
         if(v == 1){
             printf("Falling asleep.\n");
+            Add(semid, BARBER_ID, -1);
             Add(semid, BARBER_ID, -1);
             printf("Waking up.\n");
         }

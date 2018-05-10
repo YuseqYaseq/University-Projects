@@ -51,10 +51,10 @@ int main(int c, char* v[]){
         if(r == -1){
             printf("Queue full! Leaving the barber's.\n");
             exit(0);
-        }else if(e){
+        }else if(IsZero(semid, BARBER_ID)){
             printf("Waking up the barber.\n");
             //printf("3\n");
-            Add(semid, BARBER_ID, 1);
+            Add(semid, BARBER_ID, 2);
         }
         printf("4\n");
         pause();
