@@ -1,12 +1,12 @@
 CC=gcc
 OPT=-Wall
 
-all: clean s c
+all: clean b c
 
-s: s_test.c lib.c queue.c
+b: barber.c lib.c queue.c
 	$(CC) $^ -o $@ $(OPT)
-c: c_test.c lib.c queue.c
+c: client.c lib.c queue.c
 	$(CC) $^ -o $@ $(OPT)
 
 clean:
-	rm -f c s
+	rm -f c b
