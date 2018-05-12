@@ -35,6 +35,7 @@ int main(int c, char* v[]){
         printf("Uzycie programu: ./c N S\n");
         printf("N - liczba klientow do stworzenia.\n");
         printf("S - liczba strzyzen dla klienta.\n");
+        return 0;
     }
     signal(SIGUSR1, finished);
     //signal(SIGINT, kill);

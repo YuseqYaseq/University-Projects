@@ -38,6 +38,11 @@ void onExit(int t){
 }
 
 int main(int c, char* v[]){
+    if(c < 2){
+        printf("Uzycie programu: ./s N\n");
+        printf("N - liczba siedzen w kolejce do golibrody.\n");
+        return 0;
+    }
     signal(SIGINT, onExit);
     signal(SIGTERM, onExit);
     
