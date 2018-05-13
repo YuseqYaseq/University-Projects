@@ -40,7 +40,15 @@ void Release(sem_t* s){
 }
 
 void CloseSemaphore(sem_t* s){
-    sem_close(s);
+    if(sem_close(s))
+        perror(strerror(errno));
+}
+
+void RemoveSemaphore(const char* name){
+    if(sem_unlink(name) == -1){
+        fprintf(stderr, "Failed to remove semaphore!.\n");
+        perror(strerror(errno));
+    }
 }
 
 void* CreateSharedMem(const char* name, off_t size){
@@ -83,6 +91,10 @@ void* GetSharedMem(const char* name, off_t size){
 void ReleaseSharedMem(void* addr, size_t len, const char* name){
     munmap(addr, len);
     shm_unlink(name);
+}
+
+void CloseSharedMem(void* addr, size_t len){
+    munmap(addr, len);
 }
 
 int GetValue(sem_t* sem){

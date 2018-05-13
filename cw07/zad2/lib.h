@@ -19,9 +19,11 @@ sem_t* GetSemaphore(const char* name);
 void Take(sem_t* sem);
 void Release(sem_t* sem);
 void CloseSemaphore(sem_t* sem);
+void RemoveSemaphore(const char* name);
 void* CreateSharedMem(const char* name, off_t len);
 void* GetSharedMem(const char* name, off_t len);
 void ReleaseSharedMem(void* addr, size_t len, const char* name);
+void CloseSharedMem(void* addr, size_t len);
 int GetValue(sem_t* sem);
 
 
