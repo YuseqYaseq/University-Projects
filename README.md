@@ -9,6 +9,6 @@ Tasks completed for Operating Systems class.
 5. Pipelines
 6. IPC - Interprocess Communication
 7. IPC - Shared Memory, Semaphores
-8. -
+8. Threads
 9. -
 10. -
