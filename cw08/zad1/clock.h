@@ -24,10 +24,8 @@ void startClock() {
 void finishClock() {
     long ticks = sysconf(_SC_CLK_TCK);
     finish = times(&tmsfinish);
-    printf("Czas rzeczywisty: %f\nCzas usera: %f\nCzas systemowy: %f\n",
-		(finish - start) / (double)ticks,
-		(tmsfinish.tms_utime - tmsstart.tms_utime) / (double)ticks,
-		(tmsfinish.tms_stime - tmsstart.tms_stime) / (double)ticks);
+    printf("Czas rzeczywisty: %f\n",
+		(finish - start) / (double)ticks);
 }
 
 

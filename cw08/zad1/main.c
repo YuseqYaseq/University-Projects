@@ -9,7 +9,8 @@
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
-//pthread_t* threads;
+pthread_t* threads = 0;
+int** args = 0;
 
 FILE* result;
 
@@ -38,6 +39,15 @@ void onExit(){
             free(filter[i]);
         }
         free(filter);
+    }
+    if(threads){
+        free(threads);
+    }
+    if(args){
+        for(int i = 0; i < n; ++i){
+            free(args[i]);
+        }
+        free(args);
     }
 }
 
@@ -79,30 +89,31 @@ int readPGM(const char* path){
     return 0;
 }
 
-void transform(){
+void* transform(void* arg){
+    int thread_num = *((int*)arg);
     int c_x;
     int c_y;
-    for(int i = 0; i < h; ++i){
+    for(int i = thread_num*(h/n); i < (thread_num+1)*(h/n); ++i){
         for(int j = 0; j < w; ++j){
             double s = 0;
             for(int ci = 0; ci < c; ++ci){
                 for(int cj = 0; cj < c; ++cj){
-                    c_y = MAX(1, i - ceil(c/2) + ci);
+                    c_y = MAX(1, i - ceil(c/2.0) + ci);
                     c_y--;
                     if(c_y > h - 1)c_y = h - 1;
                     
-                    c_x = MAX(1, j - ceil(c/2) + cj);
+                    c_x = MAX(1, j - ceil(c/2.0) + cj);
                     c_x--;
                     if(c_x > w - 1)c_x = w - 1;
                     
                     s += pic[c_y][c_x] * filter[ci][cj];
                 }
             }
-            
             if(s > max_val) s = max_val;
             res[i][j] = s;
         }
     }
+    return NULL;
 }
 
 int main(int c, char* v[]){
@@ -122,9 +133,22 @@ int main(int c, char* v[]){
         res[i] = (short*)malloc(w*sizeof(short));
     }
     
+    ////////////////////////////
+    startClock();
     
+    threads = (pthread_t*)malloc(n*sizeof(pthread_t));
+    args = (int**)malloc(n*sizeof(int*));
+    for(int i = 0; i < n; ++i){
+        args[i] = (int*)malloc(sizeof(int));
+        *(args[i]) = i;
+        pthread_create(&threads[i], NULL, &transform, (void*)args[i]);
+    }
+    for(int i = 0; i < n; ++i){
+        pthread_join(threads[i], NULL);
+    }
     
-    transform();
+    finishClock();
+    ///////////////////////////
     
     result = fopen(v[4], "w");
     if(result){
