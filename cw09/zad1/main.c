@@ -9,13 +9,13 @@
 #include <unistd.h>
 #include <string.h>
 
-#include "squeue.h"
+#include "mqueue.h"
 
 //Size of buffers created by producers/consumed by consumers
-#define BUFF_SIZE (5)
+#define BUFF_SIZE (200)
 
 //Semaphore queue for produced items
-struct SQueue q;
+struct MQueue q;
 //N
 int size;
 
@@ -51,11 +51,11 @@ char* consumers_name = "consumers";
 sem_t* consumers_locked;
 
 void onExit(int z){
-    sem_close(file_lock);
+    //sem_close(file_lock);
     sem_unlink(lock_name);
-    sem_close(finished);
+    //sem_close(finished);
     sem_unlink(finished_name);
-    sem_close(consumers_locked);
+    //sem_close(consumers_locked);
     sem_unlink(consumers_name);
     QDel(&q);
     exit(0);
@@ -65,14 +65,18 @@ void* produce(void* args){
     while(1){
         char* buffer = (char*)malloc(BUFF_SIZE*sizeof(char));
         int res;
+        char newline;
         
         //Read the data
         sem_wait(file_lock);
-        res = fread(buffer, sizeof(char), BUFF_SIZE, file);
+        //res = fread(buffer, sizeof(char), BUFF_SIZE, file);
+        res = fscanf(file, "%100[^\n]", buffer);
+        fscanf(file, "%c", &newline);
         sem_post(file_lock);
         
         //If the entire file has been read
-        if(res == 0){
+        if(res == EOF){
+        //if(strlen(buffer) == 0){
             sem_post(finished);
             free(buffer);
             return NULL;
@@ -103,7 +107,7 @@ void* consume(void* args){
         if(inf_mode){
             if(write)printf("Consumer: read line %s.\n", buf);
             else printf("Consumer: line \"%s\" didn't match search mode!\n", buf);
-        }else if(write)printf("%s", buf);
+        }else if(write)printf("%s\n", buf);
         free(buf);
     }
 }
@@ -137,8 +141,8 @@ void* consume_special(void* args){
                 break;
             };
             if(inf_mode){
-                if(write)printf("Consumer_s: read line %s.\n", buf);
-                else printf("Consumer_s: line \"%s\" didn't match search mode!\n", buf);
+                if(write)printf("Consumer: read line %s.\n", buf);
+                else printf("Consumer: line \"%s\" didn't match search mode!\n", buf);
             }else if(write)printf("%s", buf);
             free(buf);
             //QPut(&q, buf);
@@ -149,11 +153,11 @@ void* consume_special(void* args){
 int main(int c, char* v[]){
     
     //Clear used semaphores in case of an interruption and leftover semaphores 
-    sem_close(file_lock);
+    //sem_close(file_lock);
     sem_unlink(lock_name);
-    sem_close(finished);
+    //sem_close(finished);
     sem_unlink(finished_name);
-    sem_close(consumers_locked);
+    //sem_close(consumers_locked);
     sem_unlink(consumers_name);
     QDel(&q);
 
@@ -167,6 +171,7 @@ int main(int c, char* v[]){
         printf("S - tryb wyszukiwania ('<' - mniejsze od, '>' - wieksze od, '=' - rowne)\n");
         printf("I - tryb wypisywania informacji (0 - tryb uproszczony, 1 - tryb opisowy)\n");
         printf("NK - czas dzialania procesu\n");
+        return 0;
     }
     prod_num = atoi(v[1]);
     cons_num = atoi(v[2]);
