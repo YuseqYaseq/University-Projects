@@ -102,6 +102,7 @@ char* QTryGet(struct MQueue* q){
     //sem_post(q->read);
     //sem_post(q->empty);
     
+    pthread_cond_signal(&(q->full));
     pthread_mutex_unlock(&(q->mutex));
     return e;
 }
