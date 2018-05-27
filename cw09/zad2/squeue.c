@@ -34,11 +34,11 @@ void QInit(struct SQueue* q, int size){
 int QPut(struct SQueue* q, char* e){
     sem_wait(q->empty);
     sem_wait(q->read);
-    if(q->queueIn == ((q->queueOut -1 + q->size) % q->size)){
+    /*if(q->queueIn == ((q->queueOut -1 + q->size) % q->size)){
         sem_post(q->read);
         sem_post(q->full);
         return -1; //Queue full
-    }
+    }*/
     
     q->elems[q->queueIn] = e;
     q->queueIn = (q->queueIn + 1) % q->size;
