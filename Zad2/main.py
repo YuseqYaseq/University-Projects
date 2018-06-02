@@ -48,6 +48,10 @@ def main():
     if args.output is None:
         png = False
     
+    #if output doesn't have .png extension we have to add it manually
+    if args.output[-4:] != '.png':
+        args.output += '.png'
+    
     #init colour parser
     cparser = ColourParser()
     
