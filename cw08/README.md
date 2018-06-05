@@ -1,4 +1,4 @@
-# Zadania - Zestaw 8
+# Zestaw 8
 ### Filtrowanie obrazów
 Jedną z najprostszych operacji jaką można wykonać na obrazie jest operacja filtrowania (splotu). Operacja ta przyjmuje na wejściu dwie macierze:
 * Macierz ![equation](https://latex.codecogs.com/gif.latex?I_{N\times%20M}) reprezentującą obraz. Dla uproszczenia rozważamy jedynie obrazy w 256 odcieniach szarości. Każdy element macierzy I jest więc liczbą całkowitą z zakresu 0 do 255.

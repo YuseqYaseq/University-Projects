@@ -10,5 +10,5 @@ Tasks completed for Operating Systems class.
 6. IPC - Interprocess Communication
 7. IPC - Shared Memory, Semaphores
 8. Threads
-9. -
-10. -
+9. Mutexes
+10. Sockets
