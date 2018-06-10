@@ -3,11 +3,13 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/un.h>
 #include <string.h>
 #include <unistd.h>
+#include <netinet/in.h>
+#include <netinet/ip.h>
+#include <arpa/inet.h>
 
-#define SOCK_PATH "/home/joseph/CODE/SysOpy/cw10/zad1/socket"
+#define PORT_NUM 8080
 
 struct test{
     int var1;
@@ -16,18 +18,18 @@ struct test{
 };
 
 int main(int c, char* v[]){
-    int cfd = socket(AF_UNIX, SOCK_STREAM, 0);
+    int cfd = socket(AF_INET, SOCK_STREAM, 0);
     if(cfd == -1){
         fprintf(stderr, "Failed to open socket. errno = %d.\n", errno);
         exit(-1);
     }
-    struct sockaddr_un my_addr, peer_addr;
-    int sfd;
-    memset(&my_addr, 0, sizeof(struct sockaddr_un));
-    strncpy(my_addr.sun_path, SOCK_PATH, sizeof(my_addr.sun_path) - 1);
-    my_addr.sun_family = AF_UNIX;
+    struct sockaddr_in my_addr;
+    memset(&my_addr, 0, sizeof(my_addr));
+    my_addr.sin_family = AF_INET;
+    my_addr.sin_addr.s_addr = inet_addr("192.168.0.11");
+    my_addr.sin_port = PORT_NUM;
     
-    if(connect(cfd, (struct sockaddr*)&my_addr, sizeof(struct sockaddr_un)) == -1){
+    if(connect(cfd, (struct sockaddr*)&my_addr, sizeof(my_addr)) == -1){
         fprintf(stderr, "Failed to connect to server. errno = %d.\n", errno);
         exit(-1);
     }
@@ -35,4 +37,6 @@ int main(int c, char* v[]){
     struct test t;
     read(cfd, &t, sizeof(t));
     printf("test.var1 = %d\ntest.var2 = %d\ntest.buf = %s\n", t.var1, t.var2, t.buf);
+    
+    close(cfd);
 }

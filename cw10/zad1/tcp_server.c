@@ -6,10 +6,12 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
-#include <sys/un.h>
+#include <netinet/in.h>
+#include <netinet/ip.h>
 
-#define SOCK_PATH "/home/joseph/CODE/SysOpy/cw10/zad1/socket"
 #define LISTEN_BACKLOG 50
+
+#define PORT_NUM 8080
 
 struct test{
     int var1;
@@ -18,22 +20,24 @@ struct test{
 };
 
 int main(int c, char* v[]){
-
     //int fd = socket(AF_INET, SOCK_STREAM, 0);
-    int sfd = socket(AF_UNIX, SOCK_STREAM, 0);
+    int sfd = socket(AF_INET, SOCK_STREAM, 0);
     if(sfd == -1){
         fprintf(stderr, "Failed to open socket. errno = %d.\n", errno);
         exit(-1);
     }
-    struct sockaddr_un my_addr, peer_addr;
+    struct sockaddr_in my_addr, peer_addr;
     int cfd;
     socklen_t peer_addr_size;
     
-    memset(&my_addr, 0, sizeof(struct sockaddr_un));
-    my_addr.sun_family = AF_UNIX;
-    strncpy(my_addr.sun_path, SOCK_PATH, sizeof(my_addr.sun_path) - 1);
+    memset(&my_addr, 0, sizeof(my_addr));
+    my_addr.sin_family = AF_INET;
+    my_addr.sin_addr.s_addr = INADDR_ANY;
+    my_addr.sin_port = PORT_NUM;
     
-    if(bind(sfd, (const struct sockaddr*) &my_addr, sizeof(struct sockaddr_un)) == -1){
+    
+    
+    if(bind(sfd, (const struct sockaddr*) &my_addr, sizeof(my_addr)) == -1){
         fprintf(stderr, "Failed to bind socket to a name. errno = %d.\n", errno);
         exit(-1);
     }
@@ -42,7 +46,7 @@ int main(int c, char* v[]){
         exit(-1);
     }
     
-    peer_addr_size = sizeof(struct sockaddr_un);
+    peer_addr_size = sizeof(peer_addr);
     cfd = accept(sfd, (struct sockaddr*) &peer_addr, &peer_addr_size);
     if(cfd == -1){
         fprintf(stderr, "Failed to accept the socket. errno = %d.\n", errno);
@@ -55,8 +59,12 @@ int main(int c, char* v[]){
     strcpy(t.buf,"co sie dzieje");
     send(cfd, &t, sizeof(t), 0);
     
-    if(unlink(SOCK_PATH) == -1){
+    if(shutdown(sfd, SHUT_RDWR) == -1){
         fprintf(stderr, "Failed to unlink socket path. errno = %d.\n", errno);
+        exit(-1);
+    }
+    if(close(sfd) == -1){
+        fprintf(stderr, "Failed to close socket. errno = %d.\n", errno);
         exit(-1);
     }
     
