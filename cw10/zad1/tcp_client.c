@@ -26,7 +26,8 @@ int main(int c, char* v[]){
     struct sockaddr_in my_addr;
     memset(&my_addr, 0, sizeof(my_addr));
     my_addr.sin_family = AF_INET;
-    my_addr.sin_addr.s_addr = inet_addr("192.168.0.11");
+    //my_addr.sin_addr.s_addr = inet_addr("192.168.0.11");
+    my_addr.sin_addr.s_addr = inet_addr("83.4.155.197");
     my_addr.sin_port = PORT_NUM;
     
     if(connect(cfd, (struct sockaddr*)&my_addr, sizeof(my_addr)) == -1){
