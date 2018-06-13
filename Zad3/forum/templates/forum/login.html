@@ -1,0 +1,12 @@
+<h1>Login</h1>
+{% if pass_incorrect %}
+    <p class="text-danger">Incorrect credentials!</p>
+{% endif %}
+<form action="{% url 'forum:lin' %}" method="post">
+{% csrf_token %}
+    <table>
+    {{ form }}
+    </table>
+<input type="submit" value="Log in" />
+</form>
+<a href="{% url 'forum:reg' %}">First time? Create an account!</a>

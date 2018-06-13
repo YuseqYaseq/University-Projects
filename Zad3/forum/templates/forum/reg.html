@@ -1,0 +1,9 @@
+<h1>Register</h1>
+
+<form action="{% url 'forum:reg' %}" method="post">
+{% csrf_token %}
+    <table>
+    {{ form }}
+    </table>
+<input type="submit" value="Register" />
+</form>
