@@ -33,7 +33,7 @@ int main(int c, char* v[]){
     memset(&my_addr, 0, sizeof(my_addr));
     my_addr.sin_family = AF_INET;
     my_addr.sin_addr.s_addr = INADDR_ANY;
-    my_addr.sin_port = PORT_NUM;
+    my_addr.sin_port = htons( PORT_NUM );
     
     
     
@@ -54,10 +54,8 @@ int main(int c, char* v[]){
     }
     
     struct test t;
-    t.var1 = 5;
-    t.var2 = 100;
-    strcpy(t.buf,"co sie dzieje");
-    send(cfd, &t, sizeof(t), 0);
+    read(cfd, &t, sizeof(t));
+    printf("test.var1 = %d\ntest.var2 = %d\ntest.buf = %s\n", t.var1, t.var2, t.buf);
     
     if(shutdown(sfd, SHUT_RDWR) == -1){
         fprintf(stderr, "Failed to unlink socket path. errno = %d.\n", errno);

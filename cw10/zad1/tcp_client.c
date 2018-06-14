@@ -28,16 +28,21 @@ int main(int c, char* v[]){
     my_addr.sin_family = AF_INET;
     //my_addr.sin_addr.s_addr = inet_addr("192.168.0.11");
     my_addr.sin_addr.s_addr = inet_addr("83.4.155.197");
-    my_addr.sin_port = PORT_NUM;
+    my_addr.sin_port = htons( PORT_NUM );
     
     if(connect(cfd, (struct sockaddr*)&my_addr, sizeof(my_addr)) == -1){
         fprintf(stderr, "Failed to connect to server. errno = %d.\n", errno);
         exit(-1);
     }
     
+    printf("wysylam...\n");
     struct test t;
-    read(cfd, &t, sizeof(t));
-    printf("test.var1 = %d\ntest.var2 = %d\ntest.buf = %s\n", t.var1, t.var2, t.buf);
+    t.var1 = 5;
+    t.var2 = 100;
+    strcpy(t.buf,"co sie dzieje");
+    send(cfd, &t, sizeof(t), 0);
+    
+    
     
     close(cfd);
 }
