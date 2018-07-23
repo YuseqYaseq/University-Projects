@@ -1,0 +1,62 @@
+Optymalizacja -O0
+
+
+Biblioteka statyczna:
+Czas rzeczywisty: 0.340000
+Czas usera: 0.180000
+Czas systemowy: 0.010000
+
+Biblioteka dynamiczna ladowana przy starcie programu:
+Czas rzeczywisty: 0.350000
+Czas usera: 0.190000
+Czas systemowy: 0.000000
+
+Biblioteka dynamiczna ladowana w trakcie dzialania programu:
+Czas rzeczywisty: 0.000000
+Czas usera: 0.000000
+Czas systemowy: 0.000000
+
+Optymalizacja -Os
+
+Biblioteka statyczna:
+Czas rzeczywisty: 0.360000
+Czas usera: 0.200000
+Czas systemowy: 0.000000
+
+Biblioteka dynamiczna ladowana przy starcie programu:
+Czas rzeczywisty: 0.310000
+Czas usera: 0.170000
+Czas systemowy: 0.020000
+
+Biblioteka dynamiczna ladowana w trakcie dzialania programu:
+Czas rzeczywisty: 0.000000
+Czas usera: 0.000000
+Czas systemowy: 0.000000
+
+Optymalizacja -03
+
+Biblioteka statyczna:
+Czas rzeczywisty: 0.290000
+Czas usera: 0.170000
+Czas systemowy: 0.010000
+
+Biblioteka dynamiczna ladowana przy starcie programu:
+Czas rzeczywisty: 0.220000
+Czas usera: 0.170000
+Czas systemowy: 0.000000
+
+Biblioteka dynamiczna ladowana w trakcie dzialania programu:
+Czas rzeczywisty: 0.000000
+Czas usera: 0.000000
+Czas systemowy: 0.000000
+
+Mozemy zauwazyc, ze optymalizacja -O3 zmniejsza czas wykonywania programu zwlaszcza dla biblioteki statycznej. Czas systemowy w kazdym przypadku byl zaniedbywalnie maly z uwagi na niewielka ilosc wykonywanych operacji wejscia/wyjscia i tym podobnych.
+
+
+
+
+
+
+
+
+

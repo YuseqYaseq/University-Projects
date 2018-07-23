@@ -1,0 +1,10 @@
+Liczba wątków: 1
+Czas rzeczywisty: 1.700000
+Liczba wątków: 2
+Czas rzeczywisty: 0.900000
+Liczba wątków: 4
+Czas rzeczywisty: 0.460000
+Liczba wątków: 8
+Czas rzeczywisty: 0.250000
+Liczba wątków: 16
+Czas rzeczywisty: 0.260000

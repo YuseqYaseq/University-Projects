@@ -1,0 +1,21 @@
+CC=g++
+OPT=-O3
+
+all: clean main_a main_so main_dll .PHONY
+
+main_a: main.c
+	$(CC) $^ -L ./ -o $@ -la -Wall $(OPT)
+
+main_so: main.c
+	LD_LIBRARY_PATH=/home/joseph/sysopy/Projekty/Zad1/main
+	export LD_LIBRARY_PATH
+	$(CC) $^ -L ./ -o $@ -lso -Wall $(OPT)
+
+main_dll: dllmain.c
+	$(CC) $^ -o $@ -Wall -ldl $(OPT)
+
+.PHONY: clean
+	make -f testmake
+clean:
+	rm -rf *.o
+

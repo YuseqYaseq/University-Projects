@@ -1,0 +1,19 @@
+testcase1 = 100 alloc 5000000 0 alloc 5000000 1 alloc 5000000 2 find 0 0 free 2 free 1 free 0
+
+all: test1.txt test2.txt test3.txt test4.txt test5.txt
+
+test1.txt: main_a
+	./$^ 0 $(testcase1) >> tests/$@
+
+test2.txt: main_a
+	./$^ 1 $(testcase1) >> tests/$@
+
+test3.txt: main_so
+	./$^ 0 $(testcase1) >> tests/$@
+
+test4.txt: main_so
+	./$^ 1 $(testcase1) >> tests/$@
+
+test5.txt: main_dll
+	./$^ 1 $(testcase1) >> tests/$@
+

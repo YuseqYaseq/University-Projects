@@ -1,0 +1,24 @@
+IMG1=img/monalisa
+FILT1=filters/filter1
+FILT2=filters/filter2
+FILT3=filters/filter3
+RES=res
+TESTRESULTS=Times.txt
+
+TESTCASE1= 1 $(IMG1) $(FILT2) $(RES)
+TESTCASE2= 2 $(IMG1) $(FILT2) $(RES)
+TESTCASE3= 4 $(IMG1) $(FILT2) $(RES)
+TESTCASE4= 8 $(IMG1) $(FILT2) $(RES)
+TESTCASE5= 16 $(IMG1) $(FILT2) $(RES)
+
+all: clean run
+
+run: main
+	./$^ $(TESTCASE1) >> $(TESTRESULTS)
+	./$^ $(TESTCASE2) >> $(TESTRESULTS)
+	./$^ $(TESTCASE3) >> $(TESTRESULTS)
+	./$^ $(TESTCASE4) >> $(TESTRESULTS)
+	./$^ $(TESTCASE5) >> $(TESTRESULTS)
+
+clean:
+	rm -f Times.txt
