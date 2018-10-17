@@ -19,7 +19,7 @@ class Buffer {
         }
         s = elem;
         isEmpty = false;
-        this.notify();
+        this.notifyAll();
     }
 
     synchronized String get() {
@@ -33,7 +33,7 @@ class Buffer {
             }
         }
         isEmpty = true;
-        this.notify();
+        this.notifyAll();
         return s;
     }
 }
