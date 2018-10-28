@@ -17,28 +17,28 @@ float CubicInterpolation::CubicHermite(PolynomialCoeffs coeffs, float t) const
     return a * static_cast<float>(pow(t, 3)) + b * static_cast<float>(pow(t, 2)) + c * t + d;
 }
 
-void CubicInterpolation::Interpolate2D(int pointsToInterpolate)
+void CubicInterpolation::Interpolate2D(unsigned int pointsToInterpolate)
 {
     std::vector<int> index(pointsToInterpolate);
     std::vector<float> t;
     std::vector<float> tx;
 
-    int i = 0, points_size = pointsList.size() - 1;
+    int i = 0, points_size = pointsList2D.size() - 1;
     std::generate(index.begin(), index.end(), [&i, &pointsToInterpolate, &points_size, &t, &tx]()
     {
         float percent = ((float)i) / (float(pointsToInterpolate - 1));
         tx.push_back((points_size)* percent);
         t.push_back(tx[i] - floor(tx[i]));
         return int(tx[i++]);
-    });
+    });;
 
     for (int i = 0; i < pointsToInterpolate; ++i)
     {
         std::array<PolynomialCoeffs, 2> coeffs;
-        std::array<float, 2> A = GetIndexClamped(pointsList, index[i] - 1);
-        std::array<float, 2> B = GetIndexClamped(pointsList, index[i]);
-        std::array<float, 2> C = GetIndexClamped(pointsList, index[i] + 1);
-        std::array<float, 2> D = GetIndexClamped(pointsList, index[i] + 2);
+        std::array<float, 2> A = GetIndexClamped(pointsList2D, index[i] - 1);
+        std::array<float, 2> B = GetIndexClamped(pointsList2D, index[i]);
+        std::array<float, 2> C = GetIndexClamped(pointsList2D, index[i] + 1);
+        std::array<float, 2> D = GetIndexClamped(pointsList2D, index[i] + 2);
 
         for (int i = 0; i < 2; i++)
         {
@@ -55,7 +55,36 @@ void CubicInterpolation::Interpolate2D(int pointsToInterpolate)
     }
 }
 
-void CubicInterpolation::Interpolate1D(int pointsToInterpolate)
+void CubicInterpolation::Interpolate1D(unsigned int pointsToInterpolate)
 {
-    //TODO
+    std::vector<int> index(pointsToInterpolate);
+    std::vector<float> t;
+    std::vector<float> tx;
+
+    int i = 0, points_size = pointsList1D.size() - 1;
+    std::generate(index.begin(), index.end(), [&i, &pointsToInterpolate, &points_size, &t, &tx]()
+    {
+        float percent = ((float)i) / (float(pointsToInterpolate - 1));
+        tx.push_back((points_size)* percent);
+        t.push_back(tx[i] - floor(tx[i]));
+        return int(tx[i++]);
+    });
+
+    for (int i = 0; i < pointsToInterpolate; ++i)
+    {
+        PolynomialCoeffs coeffs;
+        float A = GetIndexClamped(pointsList1D, index[i] - 1);
+        float B = GetIndexClamped(pointsList1D, index[i]);
+        float C = GetIndexClamped(pointsList1D, index[i] + 1);
+        float D = GetIndexClamped(pointsList1D, index[i] + 2);
+
+            coeffs.A = A;
+            coeffs.B = B;
+            coeffs.C = C;
+            coeffs.D = D;
+
+        float x = CubicHermite(coeffs, t[i]);
+
+        std::cout << "Value at " << tx[i] << " = " << x << std::endl;
+    }
 }

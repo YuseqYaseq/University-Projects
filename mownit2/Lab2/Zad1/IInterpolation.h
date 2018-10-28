@@ -16,8 +16,8 @@ public:
 
     // public interface methods
 public:
-    virtual void Interpolate1D(int pointsToInterpolate) =  0;
-    virtual void Interpolate2D(int pointsToInterpolate) =  0;
+    virtual void Interpolate1D(unsigned int pointsToInterpolate) =  0;
+    virtual void Interpolate2D(unsigned int pointsToInterpolate) =  0;
 
 };
 

@@ -9,6 +9,7 @@
 #include <array>
 
 typedef std::vector<std::array<float, 2>> PointsList2D;
+typedef std::vector<float> PointsList1D;
 
 /// <summary>
 /// Template function used for clamping specified datasets

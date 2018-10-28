@@ -19,12 +19,12 @@ class CubicInterpolation : public IInterpolation
 {
     // public construction methods
 public:
-    explicit CubicInterpolation(const PointsList2D& points) : pointsList(points) {}
+    explicit CubicInterpolation(const PointsList2D& points2D, const PointsList1D& points1D) : pointsList2D(points2D), pointsList1D(points1D) {}
 
     // IInterpolation methods
 public:
-    void Interpolate2D(int pointsToInterpolate) override;
-    void Interpolate1D(int pointsToInterpolate) override;
+    void Interpolate2D(unsigned int pointsToInterpolate) override;
+    void Interpolate1D(unsigned int pointsToInterpolate) override;
 
     // private methods
 private:
@@ -37,7 +37,8 @@ private:
 
     // private members
 private:
-    const PointsList2D& pointsList;
+    const PointsList2D& pointsList2D;
+    const PointsList1D& pointsList1D;
 
 };
 
