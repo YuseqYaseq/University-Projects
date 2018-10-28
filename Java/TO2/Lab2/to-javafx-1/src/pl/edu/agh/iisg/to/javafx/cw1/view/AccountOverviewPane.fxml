@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.BorderPane?>
+
+<BorderPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+	fx:controller="pl.edu.agh.iisg.to.javafx.cw1.controller.AccountOverviewController">
+	<center>
+		<TableView fx:id="transactionTable" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+			<columns>
+				<TableColumn fx:id="dateColumn" prefWidth="75.0" text="Date" />
+				<TableColumn fx:id="payeeColumn" prefWidth="75.0" text="Payee" />
+				<TableColumn fx:id="categoryColumn" prefWidth="75.0" text="Category" />
+				<TableColumn fx:id="inflowColumn" prefWidth="75.0" text="Inflow" />
+			</columns>
+		</TableView>
+	</center>
+</BorderPane>
