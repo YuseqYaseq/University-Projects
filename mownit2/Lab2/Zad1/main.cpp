@@ -25,7 +25,7 @@ const PointsList2D points2D =
 
 int main() {
     auto interpolation = CubicInterpolation(points2D, points1D);
-    interpolation.Interpolate2D(10);
+    interpolation.Interpolate2D(13);
     interpolation.Interpolate1D(13);
     return 0;
 }

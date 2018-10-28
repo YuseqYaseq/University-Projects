@@ -1,0 +1,77 @@
+Zadanie 1, 2
+    Wyniki dla cubic interpolation:
+
+    a) 2D
+        Value at 0 = 0  1.1
+        Value at 0.5 = 0.75625  4.8125
+        Value at 1 = 1.6  8.3
+        Value at 1.5 = 1.975  7.9625
+        Value at 2 = 2.3  6.5
+        Value at 2.5 = 2.89375  5.5875
+        Value at 3 = 3.5  4.7
+        Value at 3.5 = 3.875  3.5125
+        Value at 4 = 4.3  3.1
+        Value at 4.5 = 5.09375  5.66875
+        Value at 5 = 5.9  7.5
+        Value at 5.5 = 6.45  4.025
+        Value at 6 = 6.8  0
+
+    b) 1D
+        Value at 0 = 0
+        Value at 0.5 = 0.75625
+        Value at 1 = 1.6
+        Value at 1.5 = 1.975
+        Value at 2 = 2.3
+        Value at 2.5 = 2.89375
+        Value at 3 = 3.5
+        Value at 3.5 = 3.875
+        Value at 4 = 4.3
+        Value at 4.5 = 5.09375
+        Value at 5 = 5.9
+        Value at 5.5 = 6.45
+        Value at 6 = 6.8
+
+    Wyniki dla interpolacji lagrange'a:
+
+    a) 2D
+        Value at 0 = 0 1.1
+        Value at 0.5 = 1.39883 8.02119
+        Value at 1 = 1.6 8.3
+        Value at 1.5 = 1.80664 7.28877
+        Value at 2 = 2.3 6.5
+        Value at 2.5 = 2.93633 5.76338
+        Value at 3 = 3.5 4.7
+        Value at 3.5 = 3.91289 3.51377
+        Value at 4 = 4.3 3.1
+        Value at 4.5 = 4.91133 4.47119
+        Value at 5 = 5.9 7.5
+        Value at 5.5 = 6.95664 8.97939
+        Value at 6 = 6.8 0
+
+    b) 1D
+        Value at 0 = 0
+        Value at 0.5 = 1.39883
+        Value at 1 = 1.6
+        Value at 1.5 = 1.80664
+        Value at 2 = 2.3
+        Value at 2.5 = 2.93633
+        Value at 3 = 3.5
+        Value at 3.5 = 3.91289
+        Value at 4 = 4.3
+        Value at 4.5 = 4.91133
+        Value at 5 = 5.9
+        Value at 5.5 = 6.95664
+        Value at 6 = 6.8
+    
+    Jak widać obie metody zwracają identyczne wartości w węzłach interpolacji, ale poza nimi mogą się znacznie różnić.
+    f(0.5) = 4.8125 w pierwszym przypadku f(0.5) = 8.02119 w drugim - dwukrotnie wyższy wynik!
+   
+Zadanie 3,4,5,6
+    Wyniki regresji liniowej i błędu średniokwadratowego dla wektorów z DataSets.h:
+    y = 1x + 0; error = 0.666667            zestaw {pointsForRegressionX, pointsForRegressionY}
+    y = 0.8x + 0.4; error = 2               zestaw {DataSetX2, DataSetY2}
+    y = 3.41382x + 19.9945; error = 536.658 zestaw {DataRegressorX, DataRegressorY}
+    
+    Wykresy funkcji zostały zrobione przy użyciu matplotlib. Zrzuty ekranu znajdują się w pliku wyniki.png dla zadania 5 i wyniki2.png dla zadania 6.
+
+

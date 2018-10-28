@@ -6,6 +6,7 @@
 
 #include "LagrangeInterpolation.h"
 #include "LinearRegression.h"
+#include "LinearRegressor.h"
 #include "DataSets.h"
 
 int main() {
@@ -13,9 +14,14 @@ int main() {
     interpolation.Interpolate2D(13);
     interpolation.Interpolate1D(13);
     std::pair<float, float> ab = linearRegression(pointsForRegressionX, pointsForRegressionY);
-    std::cout << ab.first << " " << ab.second << " " << rmse(pointsForRegressionX) << std::endl;
+    std::cout << "y = " << ab.first << "x + " << ab.second << "; error = " << rmse(pointsForRegressionX) << std::endl;
 
     ab = linearRegression(DataSetX2, DataSetY2);
-    std::cout << ab.first << " " << ab.second << " " << rmse(DataSetX2) << std::endl;
+    std::cout << "y = " << ab.first << "x + " << ab.second << "; error = " << rmse(DataSetX2) << std::endl;
+
+    LinearRegressor regressor;
+    regressor.fit(DataRegressorX, DataRegressorY);
+    std::cout << "y = " << regressor.getA() << "x + " << regressor.getB()
+        << "; error = " << rmse(DataRegressorX) << std::endl;
     return 0;
 }
