@@ -1,0 +1,47 @@
+
+--Views
+CREATE VIEW wycieczki_osoby AS
+SELECT
+       w.ID_WYCIECZKI,
+       w.KRAJ,
+       w.DATA,
+       w.NAZWA,
+       o.IMIE,
+       o.NAZWISKO,
+       r.STATUS
+FROM WYCIECZKI w
+JOIN REZERWACJE r ON w.ID_WYCIECZKI = r.ID_WYCIECZKI
+JOIN OSOBY o ON r.ID_OSOBY = o.ID_OSOBY;
+
+CREATE VIEW wycieczki_osoby_potwierdzone AS
+SELECT
+       w.ID_WYCIECZKI,
+       w.KRAJ,
+       w.DATA,
+       w.NAZWA,
+       o.IMIE,
+       o.NAZWISKO,
+       r.STATUS
+FROM WYCIECZKI w WHERE r.STATUS = 'P' OR r.STATUS = 'Z'
+JOIN REZERWACJE r ON w.ID_WYCIECZKI = r.ID_WYCIECZKI
+JOIN OSOBY o ON r.ID_OSOBY = o.ID_OSOBY
+
+
+
+SELECT * FROM WYCIECZKI;
+SELECT * FROM OSOBY;
+SELECT * FROM REZERWACJE;
+
+
+CREATE PROCEDURE dodaj_rezerwacje(id_wycieczki INT, id_osoby INT) AS
+BEGIN
+    INSERT INTO REZERWACJE (REZERWACJE.ID_WYCIECZKI, REZERWACJE.ID_OSOBY, STATUS)
+    VALUES (id_wycieczki, id_osoby, 'N');
+    COMMIT;
+END;
+COMMIT;
+
+BEGIN
+  dodaj_rezerwacje(4, 1);
+  COMMIT;
+END;
