@@ -11,20 +11,11 @@ public class BinarySemaphore {
             }
         }
         taken = true;
-        this.notifyAll();
     }
 
     synchronized void release() {
-        while(!taken) {
-            try {
-                this.wait();
-            } catch(InterruptedException e) {
-                System.out.println(e.toString());
-                e.printStackTrace();
-            }
-        }
         taken = false;
-        this.notifyAll();
+        this.notify();
     }
 
     boolean taken = false;
