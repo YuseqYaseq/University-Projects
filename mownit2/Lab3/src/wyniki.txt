@@ -1,0 +1,40 @@
+Wyjście programu:
+
+1
+4, 4, 4, 
+4, 4, 4, 
+4, 4, 4, 
+
+4, 8, 4, 
+4, 8, 4, 
+4, 8, 4, 
+
+2
+1, 0, 0, 
+0.2, 1, 0, 
+0.6, -1.28571, 1, 
+
+
+5, 3, 2, 
+0, 1.4, -0.4, 
+0, 0, 2.28571, 
+
+
+2, 0, 0, 
+6, 1, 0, 
+-8, 5, 3, 
+
+
+3, 
+1, 
+2, 
+
+
+Algorytm doolittle'a:
+Zamienia macierz A na iloczyn macierzy trójkątnych (dolnej i górnej) L i U.
+Działa dla dowolnych macierzy kwadratowych, może wystąpić dzielenie przez 0, ale istnieje modyfikacja tej metody, która nie ma tego problemu. Złożoność O(n^3).
+Algorytm Cholesky'ego:
+Zamienia macierz A na iloczyn macierzy trójkątnej T i jej transpozycji.
+Tylko dla symetrycznej macierzy hermitowskiej daje jednoznaczne rozwiązanie. Wymaga ok dwukrotnie mniej operacji zmiennoprzecinkowych, ale również ma złożoność O(n^3).
+Eliminacja Gaussa: opis w kodzie.
+ 
