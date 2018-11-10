@@ -1,0 +1,20 @@
+Test 0: file size = 64
+Elapsed CPU time for DFT: 0.000638
+Elapsed CPU time for FFT: 0.000209
+
+Test 1: file size = 256
+Elapsed CPU time for DFT: 0.006117
+Elapsed CPU time for FFT: 0.000737
+
+Test 2: file size = 1024
+Elapsed CPU time for DFT: 0.089188
+Elapsed CPU time for FFT: 0.002993
+
+Test 3: file size = 4096
+Elapsed CPU time for DFT: 1.30847
+Elapsed CPU time for FFT: 0.012266
+
+Test 4: file size = 8192
+Elapsed CPU time for DFT: 5.20443
+Elapsed CPU time for FFT: 0.026099
+

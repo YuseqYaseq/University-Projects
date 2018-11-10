@@ -1,0 +1,8 @@
+Strona z której pobrano dane:
+http://lampx.tugraz.at/~hadley/num/ch3/3.3a.php
+
+Wykres pokrywa się z założeniami.
+Widzimy osiową symetryczność części rzeczywistej i środkową symetryczność części urojonej.
+Jak możemy zobaczyć na załączonej stronie funkcja na podstawie której wygenerowano dane mocno przypomina zwykłą funkcję sinusoidalną.
+Odzwierciedlenie tego faktu dobrze widać na wykresie części rzeczywistej - mamy tylko jedną, bardzo wysoką wartość.
+To pokazuje, że dobrym przybliżeniem funkcji na wejściu jest pojedyncza sinusoida.

@@ -1,0 +1,25 @@
+Różnica w szybkości działania obu wersji algorytmu ujawnia się już na poziomie 64 elementów.
+W algorytmie FFT przewidujemy, że 4-krotny wzrost rozmiaru danych wejściowych spowolni działanie ok. 4-krotnie (zaniedbując dodatkowy wyraz log(4)). Z kolei w DFT 4-krotny wzrost oznacza 16-krotne spowolnienie działania. Widzimy, że ta tendencja mniej więcej jest zachowana w obu przypadkach.
+
+Test 0->1
+FFT: 0.000737 / 0.000209 = 3.53
+DFT: 0.006117 / 0.000638 = 9.59
+
+Test 1->2
+FFT: 0.002993 / 0.000737 = 4.06
+DFT: 0.089188 / 0.006117 = 14.58
+
+Test 2->3
+FFT: 0.012266 / 0.002993 = 4.10
+DFT: 1.30847  / 0.089188 = 14.67
+
+Test 3->4
+FFT: 0.026099 / 0.012266 = 2.13
+DFT: 5.20443  / 1.30847  = 3.98
+
+Niższe wyniki w ostatnim teście wynikają z tylko dwukrotnego powiększenia rozmiarów wejściowych.
+
+Złożoność N^2 DFT wynika bezpośrednio z zastosowania podwójnej pętli 0 do N.
+Złożoność Nlog(N) FFT wynika z zastosowania strategii dziel i zwyciężaj.
+Najpierw dzielimy zbiór wejściowy na pół aż do małych fragmentów zawierających tylko kilka elementów.
+Robimy to w czasie O(log(N)). Następnie dla każdego takiego podzielenia musimy dokonać liniowej konkatenacji. Końcowa złożoność to iloczyn złożoności tych dwóch etapów.
