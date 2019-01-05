@@ -5,6 +5,16 @@
 #include <cmath>
 
 namespace AGH_NN {
+
+#define OVER_COLUMNS  0
+#define OVER_ROWS     1
+
+  template <typename D>
+  class Matrix2D;
+
+  template <typename D>
+  std::ostream& operator<<(const std::ostream &ostream, Matrix2D<D> &matrix);
+
   template<typename D>
   class Matrix2D {
 
@@ -35,8 +45,14 @@ namespace AGH_NN {
     //Multiply matrix by a scalar
     Matrix2D<D> operator*(const D scalar);
 
+    //Divide matrix by a scalar
+    Matrix2D<D> operator/(const D scalar);
+
     // Access the individual elements
     D* operator[](const unsigned long id);
+
+    //slice
+    Matrix2D<D> slice(unsigned long x_from, unsigned long x_to, unsigned long y_from, unsigned long y_to);
 
     //Element-wise negation
     Matrix2D<D> operator-();
@@ -44,6 +60,7 @@ namespace AGH_NN {
     //element-wise multiplication
     Matrix2D<D> dot(const Matrix2D<D> &rhs);
 
+    //TODO: add usage of 1xn/nx1 matrices
     //element-wise division
     Matrix2D<D> div(const Matrix2D<D> &rhs);
 
@@ -54,7 +71,7 @@ namespace AGH_NN {
     Matrix2D<D> T();
 
     // Printing matrix
-    friend std::ostream &operator<<(const std::ostream &ostream, Matrix2D<D> &matrix);
+    friend std::ostream& operator<< <>(const std::ostream &ostream, Matrix2D<D> &matrix);
 
     // Access the row and column sizes
     unsigned long get_rows() const;
@@ -66,6 +83,7 @@ namespace AGH_NN {
     unsigned long cols;
 
     D operator()(const unsigned long row, const unsigned long column) const;
+    void showDotFailedMsg(const Matrix2D<D> &rhs) const;
   };
 
   template <typename D>
@@ -94,6 +112,15 @@ namespace AGH_NN {
 
   template <typename D>
   D avg(Matrix2D<D> a);
+
+  //sum over chosen dimension
+  //0 - over columns, returns 1xn
+  //1 - over rows, returns nx1
+  template <typename D>
+  Matrix2D<D> sum(Matrix2D<D> matrix, unsigned long dimension);
+
+  template <typename D>
+  Matrix2D<D> avg(Matrix2D<D> matrix, unsigned long dimension);
 };
 
 #include "Matrix2D.cpp"

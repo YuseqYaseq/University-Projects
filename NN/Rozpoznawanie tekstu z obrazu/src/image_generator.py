@@ -6,12 +6,33 @@ import os, os.path
 import errno
 
 font_size = 130
-fonts = ["Arial.ttf", "Arial_Italic.ttf", "Arial_Bold.ttf", "Times_New_Roman.ttf"]
+fonts = ["Arial.ttf",
+         "Arial_Italic.ttf",
+         "Arial_Bold.ttf",
+         "Times_New_Roman.ttf"
+]
+
 bg_fg_colors = [
     [(  0,   0,   0), (255, 255, 255)], #white text on black background
     [(255, 255, 255), (  0,   0,   0)], #black text on white background
-    [(255,   0,   0), (  0, 255, 255)]
-] 
+    [(255,   0,   0), (  0, 255, 255)]  #cyan  text on red   background
+]
+
+scales = [
+    [1.00, 1.00],
+    [1.00, 0.50], #scale image to (100%, 50%) of the original size
+    [0.50, 1.00],
+    [0.25, 1.00],
+    [1.00, 0.25]
+]
+
+angles = [
+    0,
+    45,
+    90,
+    270,
+    315
+]
 
 def mkdir_p(path):
     try:
@@ -26,13 +47,20 @@ def get_width_height(word, font):
     (width, baseline), (offset_x, offset_y) = font.font.getsize(word)
     return width, (ascent + descent)
 
-def generate_image(word, font, bg, fg):
+def generate_image(word, font, bg, fg, scale, angle):
+    #add alpha channel    
+    bg += (255,)
     font = ImageFont.truetype(font, font_size)
-    img = Image.new('RGB', (get_width_height(word, font)), color=bg)
+    width, height = (get_width_height(word, font))
+    img = Image.new('RGBA', (width, height), color=bg)
     draw = ImageDraw.Draw(img)
     draw.text((0, 0), word, font=font, fill=fg)
-    #img.resize((1000, 1000), Image.ANTIALIAS)
-    return img
+    img = img.resize((int(width * scale[0]), int(height * scale[1])), Image.ANTIALIAS)
+    img = img.rotate(angle, expand = 1)
+    
+    background = Image.new("RGBA", img.size, bg)
+    background.paste(img, mask=img.split()[-1])
+    return background
 
 def save_img_to(img, name):
     img.save(name + '.png')
@@ -50,10 +78,15 @@ def generate_images_from_file(filename, directory):
     for word in words:
         #create pics directory if it doesn't exist
         mkdir_p(directory + word)
+        
+        #generate image for every font, color, scale and rotation combination
         for font in fonts:
             for bg_fg_color in bg_fg_colors:
-                img = generate_image(word, font, bg_fg_color[0], bg_fg_color[1])
-                save_img_to(img, directory + word + "/" + font + "_" + str(bg_fg_color))
+                for scale in scales:
+                    for angle in angles:
+                        img = generate_image(word, font, bg_fg_color[0], bg_fg_color[1], scale, angle)
+                        save_img_to(img, directory + word + "/" +
+                            font + "_" + str(bg_fg_color) + "_" + str(scale) + "_" + str(angle))
 
 generate_images_from_file("top_100_words.txt", "pics/")
 

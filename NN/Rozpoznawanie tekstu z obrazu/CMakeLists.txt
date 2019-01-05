@@ -3,5 +3,17 @@ project(Rozpoznawanie_tekstu_z_obrazu)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(Rozpoznawanie_tekstu_z_obrazu src/main.cpp src/FullyConnectedLayer.cpp src/FullyConnectedLayer.h src/Layer.cpp src/Layer.h)
-add_executable(Run_Tests test/TestSuite.cpp)
+add_executable(Rozpoznawanie_tekstu_z_obrazu
+        src/main.cpp
+        src/Layer.cpp
+        src/SigmoidLayer.cpp
+        src/LogisticRegressor.cpp
+        src/ConvSigmoidLayer.cpp
+        src/MaxPoolLayer.cpp)
+add_executable(Run_Tests
+        test/TestSuite.cpp
+        src/SigmoidLayer.cpp
+        src/LogisticRegressor.cpp
+        src/Layer.cpp
+        src/ConvSigmoidLayer.cpp
+        src/MaxPoolLayer.cpp)

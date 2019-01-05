@@ -137,6 +137,25 @@ D* AGH_NN::Matrix2D<D>::operator[](const unsigned long row)
 }
 
 template <typename D>
+AGH_NN::Matrix2D<D> AGH_NN::Matrix2D<D>::slice(unsigned long x_from, unsigned long x_to, unsigned long y_from,
+                                               unsigned long y_to)
+{
+  if(x_to > cols - 1 || y_to > rows - 1) {
+    std::cerr << "slice dispositioned" << std::endl;
+    std::cerr << "rows = " << rows << ", cols = " << cols << std::endl;
+    std::cerr << "y_to = " << y_to << ", x_to = " << x_to << std::endl;
+    throw -1;
+  }
+  AGH_NN::Matrix2D<D> ret(y_to - y_from + 1, x_to - x_from + 1, 0.0);
+  for(unsigned long y = y_from; y <= y_to; ++y) {
+    for(unsigned long x = x_from; x <= x_to; ++x) {
+      ret[y - y_from][x - x_from] = matrix[y][x];
+    }
+  }
+  return ret;
+}
+
+template <typename D>
 AGH_NN::Matrix2D<D> AGH_NN::Matrix2D<D>::operator-()
 {
   Matrix2D<D> returnMatrix(*this);
@@ -151,24 +170,95 @@ AGH_NN::Matrix2D<D> AGH_NN::Matrix2D<D>::operator-()
 }
 
 template <typename D>
+void AGH_NN::Matrix2D<D>::showDotFailedMsg(const AGH_NN::Matrix2D<D> &rhs) const
+{
+  std::cerr << "Dimensions don't match!" << std::endl;
+  std::cerr << get_cols() << " != " << rhs.get_cols() << " || "
+            << get_rows() << " != " << rhs.get_rows() << std::endl;
+  throw -1;
+}
+
+template <typename D>
 AGH_NN::Matrix2D<D> AGH_NN::Matrix2D<D>::dot(const AGH_NN::Matrix2D<D> &rhs)
 {
-  Matrix2D<D> returnMatrix(get_rows(), get_cols(), static_cast<D>(0.0));
-  if(get_cols() != rhs.get_cols() || get_rows() != rhs.get_rows())
+  if(get_cols() == rhs.get_cols() && get_rows() == rhs.get_rows())
   {
-    std::cerr << "Dimensions don't match!" << std::endl;
-    std::cerr << get_cols() << " != " << rhs.get_cols() << " || "
-              << get_rows() << " != " << rhs.get_rows() << std::endl;
-  }
-
-  for(unsigned long i = 0; i < get_rows(); ++i)
-  {
-    for(unsigned long j = 0; j < get_cols(); ++j)
+    Matrix2D<D> returnMatrix(get_rows(), get_cols(), static_cast<D>(0.0));
+    for(unsigned long i = 0; i < get_rows(); ++i)
     {
-      returnMatrix[i][j] = matrix[i][j] * rhs(i, j);
+      for(unsigned long j = 0; j < get_cols(); ++j)
+      {
+        returnMatrix[i][j] = matrix[i][j] * rhs(i, j);
+      }
+    }
+    return returnMatrix;
+  }
+  else if(get_cols() == rhs.get_cols() && get_rows() != rhs.get_rows())
+  {
+    if(get_rows() == 1)
+    {
+      Matrix2D<D> returnMatrix(rhs.get_rows(), get_cols(), static_cast<D>(0.0));
+      for(unsigned long i = 0; i < rhs.get_rows(); ++i)
+      {
+        for(unsigned long j = 0; j < get_cols(); ++j)
+        {
+          returnMatrix[i][j] = matrix[0][j] * rhs(i, j);
+        }
+      }
+      return returnMatrix;
+    }
+    else if(rhs.get_rows() == 1)
+    {
+      Matrix2D<D> returnMatrix(get_rows(), get_cols(), static_cast<D>(0.0));
+      for(unsigned long i = 0; i < get_rows(); ++i)
+      {
+        for(unsigned long j = 0; j < get_cols(); ++j)
+        {
+          returnMatrix[i][j] = matrix[i][j] * rhs(0, j);
+        }
+      }
+      return returnMatrix;
+    }
+    else
+    {
+      showDotFailedMsg(rhs);
     }
   }
-  return returnMatrix;
+  else if(get_cols() != rhs.get_cols() && get_rows() == rhs.get_rows())
+  {
+    if(get_cols() == 1)
+    {
+      Matrix2D<D> returnMatrix(get_rows(), rhs.get_cols(), static_cast<D>(0.0));
+      for(unsigned long i = 0; i < get_rows(); ++i)
+      {
+        for(unsigned long j = 0; j < rhs.get_cols(); ++j)
+        {
+          returnMatrix[i][j] = matrix[i][0] * rhs(i, j);
+        }
+      }
+      return returnMatrix;
+    }
+    else if(rhs.get_cols() == 1)
+    {
+      Matrix2D<D> returnMatrix(get_rows(), get_cols(), static_cast<D>(0.0));
+      for(unsigned long i = 0; i < get_rows(); ++i)
+      {
+        for(unsigned long j = 0; j < get_cols(); ++j)
+        {
+          returnMatrix[i][j] = matrix[i][j] * rhs(i, 0);
+        }
+      }
+      return returnMatrix;
+    }
+    else
+    {
+      showDotFailedMsg(rhs);
+    }
+  }
+  else
+  {
+    showDotFailedMsg(rhs);
+  }
 }
 
 template <typename D>
@@ -196,23 +286,84 @@ AGH_NN::Matrix2D<D> AGH_NN::Matrix2D<D>::div(const AGH_NN::Matrix2D<D> &rhs)
 template<typename D>
 AGH_NN::Matrix2D<D> AGH_NN::Matrix2D<D>::operator+(const Matrix2D<D>& rhs)
 {
-  Matrix2D<D> returnMatrix = *this;
-  if(rhs.cols != this->cols || rhs.rows != this->rows)
+  if(get_cols() == rhs.get_cols() && get_rows() == rhs.get_rows())
   {
-    std::cerr << "Dimensions don't match!" << std::endl;
-    std::cerr << rhs.cols << " != " <<  this->cols << " || "
-              <<  rhs.rows << " != " << this->rows << std::endl;
-
-    throw std::exception();
-  }
-  for(unsigned long i = 0; i < rhs.get_rows(); ++i)
-  {
-    for(unsigned long j = 0; j < rhs.get_cols(); ++j)
+    Matrix2D<D> returnMatrix(get_rows(), get_cols(), static_cast<D>(0.0));
+    for(unsigned long i = 0; i < get_rows(); ++i)
     {
-      returnMatrix.matrix[i][j] += rhs.matrix[i][j];
+      for(unsigned long j = 0; j < get_cols(); ++j)
+      {
+        returnMatrix[i][j] = matrix[i][j] + rhs(i, j);
+      }
+    }
+    return returnMatrix;
+  }
+  else if(get_cols() == rhs.get_cols() && get_rows() != rhs.get_rows())
+  {
+    if(get_rows() == 1)
+    {
+      Matrix2D<D> returnMatrix(rhs.get_rows(), get_cols(), static_cast<D>(0.0));
+      for(unsigned long i = 0; i < rhs.get_rows(); ++i)
+      {
+        for(unsigned long j = 0; j < get_cols(); ++j)
+        {
+          returnMatrix[i][j] = matrix[0][j] + rhs(i, j);
+        }
+      }
+      return returnMatrix;
+    }
+    else if(rhs.get_rows() == 1)
+    {
+      Matrix2D<D> returnMatrix(get_rows(), get_cols(), static_cast<D>(0.0));
+      for(unsigned long i = 0; i < get_rows(); ++i)
+      {
+        for(unsigned long j = 0; j < get_cols(); ++j)
+        {
+          returnMatrix[i][j] = matrix[i][j] + rhs(0, j);
+        }
+      }
+      return returnMatrix;
+    }
+    else
+    {
+      showDotFailedMsg(rhs);
     }
   }
-  return returnMatrix;
+  else if(get_cols() != rhs.get_cols() && get_rows() == rhs.get_rows())
+  {
+    if(get_cols() == 1)
+    {
+      Matrix2D<D> returnMatrix(get_rows(), rhs.get_cols(), static_cast<D>(0.0));
+      for(unsigned long i = 0; i < get_rows(); ++i)
+      {
+        for(unsigned long j = 0; j < rhs.get_cols(); ++j)
+        {
+          returnMatrix[i][j] = matrix[i][0] + rhs(i, j);
+        }
+      }
+      return returnMatrix;
+    }
+    else if(rhs.get_cols() == 1)
+    {
+      Matrix2D<D> returnMatrix(get_rows(), get_cols(), static_cast<D>(0.0));
+      for(unsigned long i = 0; i < get_rows(); ++i)
+      {
+        for(unsigned long j = 0; j < get_cols(); ++j)
+        {
+          returnMatrix[i][j] = matrix[i][j] + rhs(i, 0);
+        }
+      }
+      return returnMatrix;
+    }
+    else
+    {
+      showDotFailedMsg(rhs);
+    }
+  }
+  else
+  {
+    showDotFailedMsg(rhs);
+  }
 }
 
 template<typename D>
@@ -284,6 +435,20 @@ AGH_NN::Matrix2D<D> AGH_NN::Matrix2D<D>::operator*(const D scalar)
     for(int j = 0; j < returnMatrix.get_cols(); ++j)
     {
       returnMatrix[i][j] *= scalar;
+    }
+  }
+  return returnMatrix;
+}
+
+template <typename D>
+AGH_NN::Matrix2D<D> AGH_NN::Matrix2D<D>::operator/(const D scalar)
+{
+  Matrix2D<D> returnMatrix = Matrix2D(*this);
+  for(int i = 0; i < returnMatrix.get_rows(); ++i)
+  {
+    for(int j = 0; j < returnMatrix.get_cols(); ++j)
+    {
+      returnMatrix[i][j] /= scalar;
     }
   }
   return returnMatrix;
@@ -426,4 +591,62 @@ D AGH_NN::avg(AGH_NN::Matrix2D<D> a)
     }
   }
   return sum / static_cast<D>(a.get_cols() * a.get_rows());
+}
+
+template <typename D>
+AGH_NN::Matrix2D<D> AGH_NN::sum(AGH_NN::Matrix2D<D> matrix, unsigned long dimension)
+{
+  if(dimension == 0)
+  {
+    Matrix2D<D> returnMatrix(1, matrix.get_cols(), static_cast<D>(0.0));
+    for(int i = 0; i < matrix.get_rows(); ++i)
+    {
+      for(int j = 0; j < matrix.get_cols(); ++j)
+      {
+        returnMatrix[0][j] += matrix[i][j];
+      }
+    }
+    return returnMatrix;
+  }
+  else
+  {
+    Matrix2D<D> returnMatrix(matrix.get_rows(), 1, static_cast<D>(0.0));
+    for(int i = 0; i < matrix.get_rows(); ++i)
+    {
+      for(int j = 0; j < matrix.get_cols(); ++j)
+      {
+        returnMatrix[i][0] += matrix[i][j];
+      }
+    }
+    return returnMatrix;
+  }
+}
+
+template <typename D>
+AGH_NN::Matrix2D<D> AGH_NN::avg(AGH_NN::Matrix2D<D> matrix, unsigned long dimension)
+{
+  if(dimension == 0)
+  {
+    Matrix2D<D> returnMatrix(1, matrix.get_cols(), static_cast<D>(0.0));
+    for(int i = 0; i < matrix.get_rows(); ++i)
+    {
+      for(int j = 0; j < matrix.get_cols(); ++j)
+      {
+        returnMatrix[0][j] += matrix[i][j];
+      }
+    }
+    return returnMatrix / static_cast<D>(matrix.get_rows());
+  }
+  else
+  {
+    Matrix2D<D> returnMatrix(matrix.get_rows(), 1, static_cast<D>(0.0));
+    for(int i = 0; i < matrix.get_rows(); ++i)
+    {
+      for(int j = 0; j < matrix.get_cols(); ++j)
+      {
+        returnMatrix[i][0] += matrix[i][j];
+      }
+    }
+    return returnMatrix / static_cast<D>(matrix.get_cols());
+  }
 }

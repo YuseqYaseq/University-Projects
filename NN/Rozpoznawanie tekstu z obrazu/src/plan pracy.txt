@@ -1,0 +1,17 @@
+Józef Jasek
+Przetwarzanie obrazu za pomocą sieci neuronowej
+
+19.11.2018
+-zaimplementowano generator obrazków
+-zaimplementowano operacje na macierzach
+-rozpoczęto implementację warstw fully connected
+
+03.12.2018
+-zaimplementowano warstwę sigmoidalną, fully connected
+-zaimplementowano funkcję kosztu regresji logistycznej
+-uruchomiono pierwszą sieć neuronową zbudowaną z dwóch warstw fully connected
+-zaimplementowano inicjalizację wag sieci wg dystrybucji Gaussa
+
+09.12.2018
+-zaimplementowano warstwę konwolucyjną
+-zaprojektowano pierwszą wersję modelu sieci

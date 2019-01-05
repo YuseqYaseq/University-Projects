@@ -3,28 +3,7 @@
 //
 
 #include "../src/Matrix2D.h"
-
-const double epsilon = 0.0001;
-
-#define PRINT_MESSAGE() std::cerr << "Assertion failed in line: " << \
-                  __LINE__ << " file: " << __FILE__ << std::endl
-
-#define ASSERT(x) if(!x) { \
-                    PRINT_MESSAGE(); \
-                    std::cerr << "for " << #x << " = " << x << std::endl; \
-                    }
-
-#define ASSERT_EQUALS_I(x,y) if(x != y) { \
-                                PRINT_MESSAGE(); \
-                                std::cerr << "for " << #x << " = " << x << "\t" << \
-                                #y << " = " << y << std::endl; \
-                                }
-
-#define ASSERT_EQUALS(x,y) if(fabs(x-y) > epsilon) { \
-                            PRINT_MESSAGE(); \
-                            std::cerr << "for " << #x << " = " << x << "\t" << \
-                            #y << " = " << y << std::endl; \
-                            }
+#include "assert.h"
 
 AGH_NN::Matrix2D<double> matrix1(3, 3, 0.0);
 AGH_NN::Matrix2D<double> identity3x3(3, 3, 0.0);
@@ -107,7 +86,8 @@ void plusEqualsTest() {
   ASSERT_EQUALS(results1[2][2], 30.0);
 }
 
-void dotDivTest() {
+void dotTest() {
+  //3x3 dot 3x3
   AGH_NN::Matrix2D<double> results1 = matrix1;
   results1 = results1.dot(identity3x3);
   ASSERT_EQUALS(results1[0][0], 3.0);
@@ -120,7 +100,65 @@ void dotDivTest() {
   ASSERT_EQUALS(results1[2][1], 0.0);
   ASSERT_EQUALS(results1[2][2], 15.0);
 
-  results1 = matrix1.div(matrix1);
+  //4x1 dot 4x4
+  AGH_NN::Matrix2D<int> results2 = matrix4x1.dot(matrix4x4);
+  ASSERT_EQUALS_I(results2.get_rows(), 4);
+  ASSERT_EQUALS_I(results2.get_cols(), 4);
+  ASSERT_EQUALS_I(results2[0][0], 1);
+  ASSERT_EQUALS_I(results2[0][1], 2);
+  ASSERT_EQUALS_I(results2[0][2], 3);
+  ASSERT_EQUALS_I(results2[1][0], 10);
+  ASSERT_EQUALS_I(results2[1][1], 12);
+  ASSERT_EQUALS_I(results2[1][2], 14);
+  ASSERT_EQUALS_I(results2[2][0], 27);
+  ASSERT_EQUALS_I(results2[2][1], 30);
+  ASSERT_EQUALS_I(results2[2][2], 33);
+
+  //1x4 dot 4x4
+  results2 = matrix4x1.T().dot(matrix4x4);
+  ASSERT_EQUALS_I(results2.get_rows(), 4);
+  ASSERT_EQUALS_I(results2.get_cols(), 4);
+  ASSERT_EQUALS_I(results2[0][0], 1);
+  ASSERT_EQUALS_I(results2[0][1], 4);
+  ASSERT_EQUALS_I(results2[0][2], 9);
+  ASSERT_EQUALS_I(results2[1][0], 5);
+  ASSERT_EQUALS_I(results2[1][1], 12);
+  ASSERT_EQUALS_I(results2[1][2], 21);
+  ASSERT_EQUALS_I(results2[2][0], 9);
+  ASSERT_EQUALS_I(results2[2][1], 20);
+  ASSERT_EQUALS_I(results2[2][2], 33);
+
+  //4x4 dot 4x1
+  results2 = matrix4x4.dot(matrix4x1);
+  ASSERT_EQUALS_I(results2.get_rows(), 4);
+  ASSERT_EQUALS_I(results2.get_cols(), 4);
+  ASSERT_EQUALS_I(results2[0][0], 1);
+  ASSERT_EQUALS_I(results2[0][1], 2);
+  ASSERT_EQUALS_I(results2[0][2], 3);
+  ASSERT_EQUALS_I(results2[1][0], 10);
+  ASSERT_EQUALS_I(results2[1][1], 12);
+  ASSERT_EQUALS_I(results2[1][2], 14);
+  ASSERT_EQUALS_I(results2[2][0], 27);
+  ASSERT_EQUALS_I(results2[2][1], 30);
+  ASSERT_EQUALS_I(results2[2][2], 33);
+
+  //4x4 dot 1x4
+  results2 = matrix4x4.dot(matrix4x1.T());
+  ASSERT_EQUALS_I(results2.get_rows(), 4);
+  ASSERT_EQUALS_I(results2.get_cols(), 4);
+  ASSERT_EQUALS_I(results2[0][0], 1);
+  ASSERT_EQUALS_I(results2[0][1], 4);
+  ASSERT_EQUALS_I(results2[0][2], 9);
+  ASSERT_EQUALS_I(results2[1][0], 5);
+  ASSERT_EQUALS_I(results2[1][1], 12);
+  ASSERT_EQUALS_I(results2[1][2], 21);
+  ASSERT_EQUALS_I(results2[2][0], 9);
+  ASSERT_EQUALS_I(results2[2][1], 20);
+  ASSERT_EQUALS_I(results2[2][2], 33);
+}
+
+void divTest() {
+  AGH_NN::Matrix2D<double> results1 = matrix1.div(matrix1);
   ASSERT_EQUALS(results1[0][0], 1.0);
   ASSERT_EQUALS(results1[0][1], 1.0);
   ASSERT_EQUALS(results1[0][2], 1.0);
@@ -154,11 +192,55 @@ void logTest() {
   ASSERT_EQUALS(results1[0][3], 2.30259);
 }
 
+void sumTest() {
+  AGH_NN::Matrix2D<int> results0 = sum(matrix4x4, OVER_COLUMNS);
+  AGH_NN::Matrix2D<int> results1 = sum(matrix4x4, OVER_ROWS);
+
+  ASSERT_EQUALS_I(results0.get_rows(), 1);
+  ASSERT_EQUALS_I(results0.get_cols(), 4);
+  ASSERT_EQUALS_I(results1.get_rows(), 4);
+  ASSERT_EQUALS_I(results1.get_cols(), 1);
+
+  ASSERT_EQUALS_I(results0[0][0], 28);
+  ASSERT_EQUALS_I(results0[0][1], 32);
+  ASSERT_EQUALS_I(results0[0][2], 36);
+  ASSERT_EQUALS_I(results0[0][3], 40);
+
+  ASSERT_EQUALS_I(results1[0][0], 10);
+  ASSERT_EQUALS_I(results1[1][0], 26);
+  ASSERT_EQUALS_I(results1[2][0], 42);
+  ASSERT_EQUALS_I(results1[3][0], 58);
+}
+
+void avgTest() {
+
+  AGH_NN::Matrix2D<int> results0 = avg(matrix4x4, OVER_COLUMNS);
+  AGH_NN::Matrix2D<int> results1 = avg(matrix4x4, OVER_ROWS);
+
+  ASSERT_EQUALS_I(results0.get_rows(), 1);
+  ASSERT_EQUALS_I(results0.get_cols(), 4);
+  ASSERT_EQUALS_I(results1.get_rows(), 4);
+  ASSERT_EQUALS_I(results1.get_cols(), 1);
+
+  ASSERT_EQUALS_I(results0[0][0], 28 / 4);
+  ASSERT_EQUALS_I(results0[0][1], 32 / 4);
+  ASSERT_EQUALS_I(results0[0][2], 36 / 4);
+  ASSERT_EQUALS_I(results0[0][3], 40 / 4);
+
+  ASSERT_EQUALS_I(results1[0][0], 10 / 4);
+  ASSERT_EQUALS_I(results1[1][0], 26 / 4);
+  ASSERT_EQUALS_I(results1[2][0], 42 / 4);
+  ASSERT_EQUALS_I(results1[3][0], 58 / 4);
+}
+
 void Matrix2DTest() {
   setMatrices();
   multiplicationTest();
   plusEqualsTest();
-  dotDivTest();
+  dotTest();
+  divTest();
   sigmoidTest();
   logTest();
+  sumTest();
+  avgTest();
 }
