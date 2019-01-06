@@ -2,6 +2,7 @@
 // Created by joseph on 06.12.18.
 //
 
+#include <random>
 #include "ConvSigmoidLayer.h"
 
 AGH_NN::ConvSigmoidLayer::ConvSigmoidLayer(unsigned long _k, unsigned long _d, unsigned long _w, unsigned long _h,
@@ -13,13 +14,17 @@ AGH_NN::ConvSigmoidLayer::ConvSigmoidLayer(unsigned long _k, unsigned long _d, u
     throw -1;
   }
   filters.resize(m);
-  for(unsigned long i = 0; i < m; ++i)
+  dw.resize(m);
+  for(unsigned long i = 0; i < m; ++i) {
     filters[i].resize(d, Matrix2D<double>(hf, wf, 0.0));
+    dw[i].resize(d, Matrix2D<double>(hf, wf, 0.0));
+  }
 
   A.resize(k);
   for(unsigned long i = 0; i < k; ++i)
     A[i].resize(m, Matrix2D<double>(getSize(h, hf, s, p), getSize(w, wf, s, p), 0.0));
   bias = Matrix2D<double>(m, 1, 0.0);
+  db = Matrix2D<double>(m, 1, 0.0);
 
   dX = nullptr;
 }
@@ -61,7 +66,7 @@ void AGH_NN::ConvSigmoidLayer::forward_propagation(std::vector<std::vector<AGH_N
   for(unsigned long ex = 0; ex < k; ++ex) {
     for(unsigned long f_no = 0; f_no < m; ++f_no) {
       for (unsigned long y = 0; y + hf <= h + 2 * p; y += s) {
-        for (unsigned long x = 0; x + wf < w + 2 * p; x += s) {
+        for (unsigned long x = 0; x + wf <= w + 2 * p; x += s) {
           A[ex][f_no][y][x] = getValue(ex, x, y, f_no, X) + bias[f_no][0];
         }
       }
@@ -75,13 +80,13 @@ std::vector<std::vector<AGH_NN::Matrix2D<double>>> & AGH_NN::ConvSigmoidLayer::b
 
   //zero out dw
   //for(unsigned long f_no = 0; f_no < m; ++f_no) {
-  //  for (unsigned long dim = 0; dim < d; ++dim) {
+    for (unsigned long dim = 0; dim < d; ++dim) {
       for (unsigned long y = 0; y < hf; y ++) {
         for (unsigned long x = 0; x < wf; x ++) {
-          dw[0][0][y][x] = 0.0;
+          dw[0][dim][y][x] = 0.0;
         }
       }
-  //  }
+    }
   //}
 
   if(dX != nullptr) {
@@ -91,7 +96,7 @@ std::vector<std::vector<AGH_NN::Matrix2D<double>>> & AGH_NN::ConvSigmoidLayer::b
   dX = new std::vector<std::vector<AGH_NN::Matrix2D<double>>>(k,
       std::vector<AGH_NN::Matrix2D<double>>(d, AGH_NN::Matrix2D<double>(h, w, 0.0)));
 
-
+/*
   unsigned long f_no = 0;
   unsigned long dim = 0;
   unsigned long ex = 0;
@@ -114,8 +119,37 @@ std::vector<std::vector<AGH_NN::Matrix2D<double>>> & AGH_NN::ConvSigmoidLayer::b
         }
   //    }
   //  }
-  //}
+  //}*/
+  long curY;
+  long curX;
+  long x = 0;
+  long y = 0;
 
+  for(long curFiltersDepth=0; curFiltersDepth<m; curFiltersDepth++){
+    curY = 0;
+    for(long outY=0; outY<h; outY++){
+      curX = 0;
+      for(long outX=0; outX<w; outX++){
+        for(long i=curY-p; i<=curY+p; i++, y++){
+          for(long j=curX-p; j<=curX+p; j++, x++){
+            for(long dim=0; dim<d; dim++){
+              if (i >= 0 && i < h && j >= 0 && j < w){
+                (*dX)[0][dim][outY][outX]+= filters[curFiltersDepth][dim][x][y] * prevError[0][curFiltersDepth][i][j];
+                dw[curFiltersDepth][dim][y][x]+= (*lastX)[0][dim][j][i] * prevError[0][curFiltersDepth][i][j];
+              }
+            }
+          }
+          x = 0;
+        }
+        y = 0;
+        double tmp = prevError[0][curFiltersDepth][outY][outX];
+        db[curFiltersDepth][0] += tmp;
+        curX+=s;
+      }
+      curY+=s;
+    }
+  }
+  return *dX;
 }
 
 void AGH_NN::ConvSigmoidLayer::update_parameters(double learning_rate) {
@@ -123,8 +157,33 @@ void AGH_NN::ConvSigmoidLayer::update_parameters(double learning_rate) {
     for(unsigned long dim = 0; dim < d; ++dim) {
       filters[f_no][dim] -= dw[f_no][dim] * learning_rate;
     }
+    bias[f_no][0] -= db[f_no][0];
   }
 }
+
+void AGH_NN::ConvSigmoidLayer::initialize_gaussian()
+{
+  srand(time(NULL));
+  initialize_gaussian(0.0, 1.0, static_cast<unsigned long>(rand()));
+}
+
+void AGH_NN::ConvSigmoidLayer::initialize_gaussian(double median, double variance, unsigned long seed)
+{
+  std::default_random_engine generator(seed);
+  std::normal_distribution<double> distribution(median, variance);
+  for(unsigned long ex = 0; ex < m; ++ex) {
+    for(unsigned long dim = 0; dim < d; ++dim) {
+      for (unsigned long y = 0; y < filters[ex][dim].get_rows(); ++y) {
+        for (unsigned long x = 0; x < filters[ex][dim].get_cols(); ++x) {
+          filters[ex][dim][y][x] = distribution(generator);
+        }
+      }
+    }
+    //There is no need to randomly initialize bias
+    bias[ex][0] = 0.0;
+  }
+}
+
 
 unsigned long AGH_NN::ConvSigmoidLayer::getSize(unsigned long size, unsigned long filterSize, unsigned long stride,
                                                 unsigned long padding) {

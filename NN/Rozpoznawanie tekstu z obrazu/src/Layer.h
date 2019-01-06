@@ -5,6 +5,7 @@
 #ifndef ROZPOZNAWANIE_TEKSTU_Z_OBRAZU_LAYER_H
 #define ROZPOZNAWANIE_TEKSTU_Z_OBRAZU_LAYER_H
 
+#include <vector>
 #include "Matrix2D.h"
 
 namespace AGH_NN
@@ -57,6 +58,13 @@ namespace AGH_NN
     //last X used
     Matrix2D<double>* lastX;
   };
+
+  //unfolds convolution result to a single 2d matrix [examples x neurons]
+  Matrix2D<double> unfold(std::vector<std::vector<Matrix2D<double>>> X);
+
+  //folds [examples x neurons] to conv [examples x dimensions x w x h]
+  std::vector<std::vector<Matrix2D<double>>> fold(Matrix2D<double> X,
+      unsigned long d, unsigned long w, unsigned long h);
 }
 
 #endif //ROZPOZNAWANIE_TEKSTU_Z_OBRAZU_LAYER_H

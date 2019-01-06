@@ -67,6 +67,9 @@ namespace AGH_NN {
     bool isSymmetrical();
     D determinant();
 
+    void initialize_gaussian();
+    void initialize_gaussian(double median, double variance, unsigned long seed);
+
     //transpose
     Matrix2D<D> T();
 

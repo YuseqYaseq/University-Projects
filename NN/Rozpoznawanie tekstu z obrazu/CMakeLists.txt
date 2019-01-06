@@ -9,7 +9,8 @@ add_executable(Rozpoznawanie_tekstu_z_obrazu
         src/SigmoidLayer.cpp
         src/LogisticRegressor.cpp
         src/ConvSigmoidLayer.cpp
-        src/MaxPoolLayer.cpp)
+        src/MaxPoolLayer.cpp
+        src/ActualConvSigmoidLayer.cpp)
 add_executable(Run_Tests
         test/TestSuite.cpp
         src/SigmoidLayer.cpp

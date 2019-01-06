@@ -1,3 +1,5 @@
+
+#include <random>
 #include "Matrix2D.h"
 
 
@@ -648,5 +650,26 @@ AGH_NN::Matrix2D<D> AGH_NN::avg(AGH_NN::Matrix2D<D> matrix, unsigned long dimens
       }
     }
     return returnMatrix / static_cast<D>(matrix.get_cols());
+  }
+}
+
+template <typename D>
+void AGH_NN::Matrix2D<D>::initialize_gaussian()
+{
+  srand(time(NULL));
+  initialize_gaussian(0.0, 1.0, static_cast<unsigned long>(rand()));
+}
+
+template <typename D>
+void AGH_NN::Matrix2D<D>::initialize_gaussian(double median, double variance, unsigned long seed)
+{
+  std::default_random_engine generator(seed);
+  std::normal_distribution<double> distribution(median, variance);
+  for(int i = 0; i < get_cols(); ++i)
+  {
+    for(int j = 0; j < get_rows(); ++j)
+    {
+      matrix[j][i] = distribution(generator);
+    }
   }
 }

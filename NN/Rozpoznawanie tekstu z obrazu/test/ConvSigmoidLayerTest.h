@@ -153,6 +153,10 @@ private:
         ASSERT_EQUALS_I(layer->getA()[i][j].get_rows(), 3);
       }
     }
+    
+    ASSERT_EQUALS(layer->getA()[0][0][0][0], 8.8); ASSERT_EQUALS(layer->getA()[0][0][0][1], 14.3); ASSERT_EQUALS(layer->getA()[0][0][0][2], 15.4);
+    ASSERT_EQUALS(layer->getA()[0][0][1][0], 23.1); ASSERT_EQUALS(layer->getA()[0][0][1][1], 33.0); ASSERT_EQUALS(layer->getA()[0][0][1][2], 31.9);
+    ASSERT_EQUALS(layer->getA()[0][0][2][0], 28.6); ASSERT_EQUALS(layer->getA()[0][0][2][1], 40.7); ASSERT_EQUALS(layer->getA()[0][0][2][2], 35.2);
   }
 
   void cleanup() {

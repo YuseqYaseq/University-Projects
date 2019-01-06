@@ -8,10 +8,12 @@
 #include <vector>
 #include "Matrix2D.h"
 
+class ActualConvSigmoidLayerTest;
 class ConvSigmoidLayerTest;
 
 namespace AGH_NN {
   class ConvSigmoidLayer {
+  public:
 
     void forward_propagation(std::vector<std::vector<Matrix2D<double>>>& X);
     std::vector<std::vector<Matrix2D<double>>>&
@@ -22,6 +24,9 @@ namespace AGH_NN {
         unsigned long _wf, unsigned long _hf, unsigned long _s, unsigned long _p);
 
     ~ConvSigmoidLayer();
+
+    void initialize_gaussian();
+    void initialize_gaussian(double median, double variance, unsigned long seed);
 
     std::vector<std::vector<Matrix2D<double>>>& getA(){return A;}
     std::vector<std::vector<Matrix2D<double>>>& getW(){return filters;}
