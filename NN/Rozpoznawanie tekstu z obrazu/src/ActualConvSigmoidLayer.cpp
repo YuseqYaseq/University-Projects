@@ -25,8 +25,9 @@ std::vector<std::vector<AGH_NN::Matrix2D<double>>> & AGH_NN::ActualConvSigmoidLa
     for(unsigned long dim = 0; dim < m; ++dim) {
       for(unsigned long y = 0; y < h; ++y) {
         for(unsigned long x = 0; x < w; ++x) {
-          double t = prevError[ex][dim][y][x];
-          error[ex][dim][y][x] = std::exp(-t) / ((std::exp(-t) + 1) * (std::exp(-t) + 1));
+          double t = layer->getA()[ex][dim][y][x];
+          double dy_dw = (std::exp(-t) / ((std::exp(-t) + 1) * (std::exp(-t) + 1)));
+          error[ex][dim][y][x] = dy_dw * prevError[ex][dim][y][x];
         }
       }
     }
@@ -48,6 +49,15 @@ AGH_NN::ActualConvSigmoidLayer::ActualConvSigmoidLayer(unsigned long _k, unsigne
   d = _d;
   w = _w;
   h = _h;
+}
+
+AGH_NN::ActualConvSigmoidLayer::ActualConvSigmoidLayer(const char *fileName) {
+  layer = new ConvSigmoidLayer(fileName);
+  k = layer->k;
+  m = layer->m;
+  d = layer->d;
+  w = layer->w;
+  h = layer->h;
 }
 
 AGH_NN::ActualConvSigmoidLayer::~ActualConvSigmoidLayer() {

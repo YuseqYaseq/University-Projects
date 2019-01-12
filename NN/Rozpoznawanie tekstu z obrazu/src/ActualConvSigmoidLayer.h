@@ -17,6 +17,8 @@ namespace AGH_NN {
 
     ActualConvSigmoidLayer(unsigned long _k, unsigned long _d, unsigned long _w, unsigned long _h, unsigned long _m,
                            unsigned long _wf, unsigned long _hf, unsigned long _s, unsigned long _p);
+    ActualConvSigmoidLayer(const char* fileName);
+    void save_to_file(const char* fileName);
 
     ~ActualConvSigmoidLayer();
     ConvSigmoidLayer* layer = nullptr;

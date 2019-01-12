@@ -18,3 +18,6 @@ add_executable(Run_Tests
         src/Layer.cpp
         src/ConvSigmoidLayer.cpp
         src/MaxPoolLayer.cpp)
+
+target_link_libraries(Rozpoznawanie_tekstu_z_obrazu -lstdc++fs)
+target_link_libraries(Run_Tests -lstdc++fs)

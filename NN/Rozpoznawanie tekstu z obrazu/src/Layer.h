@@ -24,6 +24,9 @@ namespace AGH_NN
     virtual void initialize_gaussian();
     virtual void initialize_gaussian(double median, double variance, unsigned long seed);
 
+    explicit Layer(const char* pathName);
+
+    void save_to_file(const char* pathName);
 
     Layer(Matrix2D<double> _weights, Matrix2D<double> _bias) :
               weights(_weights), bias(_bias){}

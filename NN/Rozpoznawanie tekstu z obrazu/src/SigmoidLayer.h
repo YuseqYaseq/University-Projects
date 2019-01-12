@@ -19,6 +19,7 @@ namespace AGH_NN
 
     SigmoidLayer(Matrix2D<double> _weights, Matrix2D<double> _bias) : Layer(_weights, _bias){}
     SigmoidLayer(unsigned long m, unsigned long n) : Layer(m, n){}
+    SigmoidLayer(const char* pathName) : Layer(pathName) {}
   };
 }
 

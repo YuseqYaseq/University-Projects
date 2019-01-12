@@ -19,6 +19,12 @@ namespace AGH_NN {
     MaxPoolLayer(unsigned long _k, unsigned long _d, unsigned long _w, unsigned long _h,
         unsigned long _wf, unsigned long _hf);
 
+    //load from file
+    explicit MaxPoolLayer(const char* pathName);
+
+    void save_to_file(const char* pathName);
+    ~MaxPoolLayer();
+
     std::vector<std::vector<AGH_NN::Matrix2D<double>>> getA() {return A;}
 
   private:

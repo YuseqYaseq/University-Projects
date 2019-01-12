@@ -3,6 +3,7 @@
 //
 
 #include <random>
+#include <fstream>
 #include "ConvSigmoidLayer.h"
 
 AGH_NN::ConvSigmoidLayer::ConvSigmoidLayer(unsigned long _k, unsigned long _d, unsigned long _w, unsigned long _h,
@@ -79,15 +80,17 @@ std::vector<std::vector<AGH_NN::Matrix2D<double>>> & AGH_NN::ConvSigmoidLayer::b
     std::vector<std::vector<AGH_NN::Matrix2D<double>>> &prevError) {
 
   //zero out dw
-  //for(unsigned long f_no = 0; f_no < m; ++f_no) {
+  for(unsigned long f_no = 0; f_no < m; ++f_no) {
     for (unsigned long dim = 0; dim < d; ++dim) {
       for (unsigned long y = 0; y < hf; y ++) {
         for (unsigned long x = 0; x < wf; x ++) {
-          dw[0][dim][y][x] = 0.0;
+          dw[f_no][dim][y][x] = 0.0;
         }
       }
     }
-  //}
+    //zero out db
+    db[f_no][0] = 0.0;
+  }
 
   if(dX != nullptr) {
     delete dX;
@@ -96,57 +99,34 @@ std::vector<std::vector<AGH_NN::Matrix2D<double>>> & AGH_NN::ConvSigmoidLayer::b
   dX = new std::vector<std::vector<AGH_NN::Matrix2D<double>>>(k,
       std::vector<AGH_NN::Matrix2D<double>>(d, AGH_NN::Matrix2D<double>(h, w, 0.0)));
 
-/*
-  unsigned long f_no = 0;
-  unsigned long dim = 0;
-  unsigned long ex = 0;
-  unsigned long result_w = getSize(w, wf, s, p);
-  unsigned long result_h = getSize(h, hf, s, p);
-  //for(unsigned long ex = 0; ex < k; ++ex) {
-  //  for(unsigned long f_no = 0; f_no < m; ++f_no) {
-  //    for(unsigned long dim = 0; dim < d; ++dim) {
-        for (unsigned long yf = 0; yf < hf; yf++) {
-          for (unsigned long xf = 0; xf < wf; xf++) {
-            for(unsigned long y = yf; y < h - (hf - yf - 1); ++y) {
-              for(unsigned long x = xf; x < w - (wf - xf - 1); ++x) {
-                long dif_x = x - xf;
-                long dif_y = y - yf;
-                if(dif_x >= 0 && dif_x < result_w && dif_y >= 0 && dif_y < result_h)
-                  dw[f_no][dim][yf][xf] += (*lastX)[ex][dim][y][x] * prevError[ex][f_no][dif_y][dif_x];
-              }
-            }
-          }
-        }
-  //    }
-  //  }
-  //}*/
   long curY;
   long curX;
   long x = 0;
   long y = 0;
-
-  for(long curFiltersDepth=0; curFiltersDepth<m; curFiltersDepth++){
-    curY = 0;
-    for(long outY=0; outY<h; outY++){
-      curX = 0;
-      for(long outX=0; outX<w; outX++){
-        for(long i=curY-p; i<=curY+p; i++, y++){
-          for(long j=curX-p; j<=curX+p; j++, x++){
-            for(long dim=0; dim<d; dim++){
-              if (i >= 0 && i < h && j >= 0 && j < w){
-                (*dX)[0][dim][outY][outX]+= filters[curFiltersDepth][dim][x][y] * prevError[0][curFiltersDepth][i][j];
-                dw[curFiltersDepth][dim][y][x]+= (*lastX)[0][dim][j][i] * prevError[0][curFiltersDepth][i][j];
+  for(long ex = 0; ex < k; ex++) {
+    for (long curFiltersDepth = 0; curFiltersDepth < m; curFiltersDepth++) {
+      curY = 0;
+      for (long outY = 0; outY < h; outY++) {
+        curX = 0;
+        for (long outX = 0; outX < w; outX++) {
+          for (long i = curY - p; i <= curY + p; i++, y++) {
+            for (long j = curX - p; j <= curX + p; j++, x++) {
+              for (long dim = 0; dim < d; dim++) {
+                if (i >= 0 && i < h && j >= 0 && j < w) {
+                  (*dX)[ex][dim][outY][outX] += filters[curFiltersDepth][dim][x][y] * prevError[ex][curFiltersDepth][i][j];
+                  dw[curFiltersDepth][dim][y][x] += (*lastX)[ex][dim][j][i] * prevError[ex][curFiltersDepth][i][j];
+                }
               }
             }
+            x = 0;
           }
-          x = 0;
+          y = 0;
+          double tmp = prevError[ex][curFiltersDepth][outY][outX];
+          db[curFiltersDepth][0] += tmp;
+          curX += s;
         }
-        y = 0;
-        double tmp = prevError[0][curFiltersDepth][outY][outX];
-        db[curFiltersDepth][0] += tmp;
-        curX+=s;
+        curY += s;
       }
-      curY+=s;
     }
   }
   return *dX;
@@ -175,7 +155,7 @@ void AGH_NN::ConvSigmoidLayer::initialize_gaussian(double median, double varianc
     for(unsigned long dim = 0; dim < d; ++dim) {
       for (unsigned long y = 0; y < filters[ex][dim].get_rows(); ++y) {
         for (unsigned long x = 0; x < filters[ex][dim].get_cols(); ++x) {
-          filters[ex][dim][y][x] = distribution(generator);
+          filters[ex][dim][y][x] = distribution(generator) / 1000;
         }
       }
     }
@@ -188,4 +168,67 @@ void AGH_NN::ConvSigmoidLayer::initialize_gaussian(double median, double varianc
 unsigned long AGH_NN::ConvSigmoidLayer::getSize(unsigned long size, unsigned long filterSize, unsigned long stride,
                                                 unsigned long padding) {
   return (size + 2 * padding - filterSize) / stride + 1;
+}
+
+void AGH_NN::ConvSigmoidLayer::save_to_file(const char *pathName) {
+  std::fstream file(pathName, std::fstream::out);
+  if(!file.is_open()) {
+    std::cerr << "Failed to save to " << pathName << "!" << std::endl;
+    return;
+  }
+  file.precision(30);
+  file << k << " " << d << " " << w << " " << h << " " << m << " " << wf << " " << hf
+      << " " << s << " " << p << std::endl;
+  
+  for(unsigned long f_no = 0; f_no < m; ++f_no) {
+    for(unsigned long dim = 0; dim < d; ++dim) {
+      for(unsigned long y = 0; y < hf; ++y) {
+        for(unsigned long x = 0; x < wf; ++x) {
+          file << filters[f_no][dim][y][x] << " ";
+        }
+      }
+    }
+    file << bias[f_no][0] << std::endl;
+  }
+}
+
+AGH_NN::ConvSigmoidLayer::ConvSigmoidLayer(const char *pathName) {
+  std::fstream file(pathName, std::fstream::in);
+  if(!file.is_open()) {
+    std::cerr << "Failed to load from " << pathName << "!" << std::endl;
+    return;
+  }
+  file >> k >> d >> w >> h >> m >> wf >> hf >> s >> p;
+
+  ////////////Standard constructor//////////////
+  if((w + 2 * p - wf) % s != 0 || (h + 2 * p - hf) % s != 0) {
+    std::cerr << "Cannot compute convolution with chosen stride!" << std::endl;
+    throw -1;
+  }
+  filters.resize(m);
+  dw.resize(m);
+  for(unsigned long i = 0; i < m; ++i) {
+    filters[i].resize(d, Matrix2D<double>(hf, wf, 0.0));
+    dw[i].resize(d, Matrix2D<double>(hf, wf, 0.0));
+  }
+
+  A.resize(k);
+  for(unsigned long i = 0; i < k; ++i)
+    A[i].resize(m, Matrix2D<double>(getSize(h, hf, s, p), getSize(w, wf, s, p), 0.0));
+  bias = Matrix2D<double>(m, 1, 0.0);
+  db = Matrix2D<double>(m, 1, 0.0);
+
+  dX = nullptr;
+  //////////////////////////////////////////////
+
+  for(unsigned long f_no = 0; f_no < m; ++f_no) {
+    for(unsigned long dim = 0; dim < d; ++dim) {
+      for(unsigned long y = 0; y < hf; ++y) {
+        for(unsigned long x = 0; x < wf; ++x) {
+          file >> filters[f_no][dim][y][x];
+        }
+      }
+    }
+    file >> bias[f_no][0];
+  }
 }

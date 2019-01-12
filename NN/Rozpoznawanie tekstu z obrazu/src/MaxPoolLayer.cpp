@@ -3,6 +3,7 @@
 //
 
 #include <cfloat>
+#include <fstream>
 #include "MaxPoolLayer.h"
 
 AGH_NN::MaxPoolLayer::MaxPoolLayer(unsigned long _k, unsigned long _d, unsigned long _w, unsigned long _h,
@@ -10,6 +11,38 @@ AGH_NN::MaxPoolLayer::MaxPoolLayer(unsigned long _k, unsigned long _d, unsigned 
   A = std::vector<std::vector<AGH_NN::Matrix2D<double>>>(k,
       std::vector<AGH_NN::Matrix2D<double>>(d, AGH_NN::Matrix2D<double>(w/wf, h/hf, 0.0)));
   lastX = nullptr;
+  dX = nullptr;
+}
+
+AGH_NN::MaxPoolLayer::MaxPoolLayer(const char *pathName) {
+
+  std::fstream file(pathName, std::fstream::in);
+  if(!file.is_open()) {
+    std::cerr << "Failed to load from " << pathName << "!" << std::endl;
+    return;
+  }
+  file >> k >> d >> w >> h >> wf >> hf;
+  file.close();
+
+  A = std::vector<std::vector<AGH_NN::Matrix2D<double>>>(k,
+      std::vector<AGH_NN::Matrix2D<double>>(d, AGH_NN::Matrix2D<double>(w/wf, h/hf, 0.0)));
+  lastX = nullptr;
+  dX = nullptr;
+}
+
+void AGH_NN::MaxPoolLayer::save_to_file(const char *pathName) {
+  std::fstream file(pathName, std::fstream::out);
+  if(!file.is_open()) {
+    std::cerr << "Failed to load from " << pathName << "!" << std::endl;
+    return;
+  }
+  file << k << " " << d << " " << w << " " << h << " " << wf << " " << hf << std::endl;
+  file.close();
+}
+
+
+AGH_NN::MaxPoolLayer::~MaxPoolLayer() {
+  delete dX;
   dX = nullptr;
 }
 

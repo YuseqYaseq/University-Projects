@@ -2,6 +2,7 @@
 // Created by joseph on 17.11.18.
 //
 #include <random>
+#include <fstream>
 
 #include "Layer.h"
 
@@ -11,6 +12,51 @@ AGH_NN::Layer::Layer(unsigned long currSize, unsigned long prevSize)
   bias = Matrix2D<double>(currSize, 1, 0.0);
   dw = Matrix2D<double>(prevSize, currSize, 0.0);
   db = Matrix2D<double>(currSize, 1, 0.0);
+}
+
+AGH_NN::Layer::Layer(const char* pathName) {
+  std::fstream file(pathName, std::fstream::in);
+  if (!file.is_open()) {
+    std::cerr << "Failed to load from " << pathName << "!" << std::endl;
+    return;
+  }
+  unsigned long currSize, prevSize;
+  file >> currSize >> prevSize;
+
+  weights = Matrix2D<double>(prevSize, currSize, 0.0);
+  bias = Matrix2D<double>(currSize, 1, 0.0);
+  dw = Matrix2D<double>(prevSize, currSize, 0.0);
+  db = Matrix2D<double>(currSize, 1, 0.0);
+
+  for(unsigned long c = 0; c < currSize; ++c) {
+    for(unsigned long p = 0; p < prevSize; ++p) {
+      file >> weights[p][c];
+    }
+    file >> bias[c][0];
+  }
+  file.close();
+}
+
+void AGH_NN::Layer::save_to_file(const char *pathName) {
+  std::fstream file(pathName, std::fstream::out);
+  if (!file.is_open()) {
+    std::cerr << "Failed to load from " << pathName << "!" << std::endl;
+    return;
+  }
+  unsigned long currSize = weights.get_cols();
+  unsigned long prevSize = weights.get_rows();
+  file.precision(30);
+  file << currSize << " " << prevSize << std::endl;
+
+  for(unsigned long c = 0; c < currSize; ++c) {
+    for(unsigned long p = 0; p < prevSize; ++p) {
+      file << weights[p][c] << " ";
+    }
+    file << std::endl;
+    file << bias[c][0];
+    file << std::endl;
+  }
+  file.close();
 }
 
 void AGH_NN::Layer::initialize_gaussian()
@@ -27,7 +73,7 @@ void AGH_NN::Layer::initialize_gaussian(double median, double variance, unsigned
   {
     for(int j = 0; j < weights.get_rows(); ++j)
     {
-      weights[j][i] = distribution(generator);
+      weights[j][i] = distribution(generator) / 1000;
     }
     //There is no need to randomly initialize bias
     bias[i][0] = 0.0;
