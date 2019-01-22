@@ -8,6 +8,7 @@
 #include "SigmoidLayerTest.h"
 #include "ConvSigmoidLayerTest.h"
 #include "MaxPoolLayerTest.h"
+#include "ReLULayerTest.h"
 
 
 int main() {
@@ -17,4 +18,5 @@ int main() {
   SigmoidLayerTest::test();
   ConvSigmoidLayerTest::test();
   MaxPoolLayerTest::test();
+  ReLULayerTest::test();
 }

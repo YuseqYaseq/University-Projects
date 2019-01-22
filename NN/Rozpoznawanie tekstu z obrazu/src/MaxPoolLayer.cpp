@@ -47,6 +47,12 @@ AGH_NN::MaxPoolLayer::~MaxPoolLayer() {
 }
 
 void AGH_NN::MaxPoolLayer::forward_propagation(std::vector<std::vector<AGH_NN::Matrix2D<double>>> &X) {
+  if(k != X.size()) {
+    k = X.size();
+    A = std::vector<std::vector<AGH_NN::Matrix2D<double>>>(k,
+        std::vector<AGH_NN::Matrix2D<double>>(d, AGH_NN::Matrix2D<double>(w/wf, h/hf, 0.0)));
+  }
+
   lastX = &X;
   for(unsigned long ex = 0; ex < k; ++ex) {
     for(unsigned long dim = 0; dim < d; ++dim) {

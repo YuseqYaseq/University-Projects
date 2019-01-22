@@ -68,6 +68,10 @@ namespace AGH_NN
   //folds [examples x neurons] to conv [examples x dimensions x w x h]
   std::vector<std::vector<Matrix2D<double>>> fold(Matrix2D<double> X,
       unsigned long d, unsigned long w, unsigned long h);
+
+  //saves matrix to file
+  void save_to(std::vector<std::vector<Matrix2D<double>>> matrix,
+      const char* fileName, std::vector<std::string>& pic_names);
 }
 
 #endif //ROZPOZNAWANIE_TEKSTU_Z_OBRAZU_LAYER_H

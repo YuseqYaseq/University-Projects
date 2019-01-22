@@ -15,6 +15,11 @@ private:
   AGH_NN::ConvSigmoidLayer* oneNumHugePaddingLayer = nullptr;
   AGH_NN::ConvSigmoidLayer* layer2 = nullptr;
 
+  AGH_NN::ConvSigmoidLayer* dlugopolLayer = nullptr;
+
+  //matrix [2 x 2 x 5 x 5]
+  std::vector<std::vector<AGH_NN::Matrix2D<double>>> dlugopolX;
+
   //matrix [2 x 2 x 3 x 3]
   std::vector<std::vector<AGH_NN::Matrix2D<double>>> X;
 
@@ -37,6 +42,18 @@ private:
   unsigned long hf = 3;
   unsigned long s = 1;
   unsigned long p = 1;
+
+  //na ten zrabany test
+  unsigned long d_k = 2;
+  unsigned long d_d = 2;
+  unsigned long d_w = 5;
+  unsigned long d_h = 5;
+  unsigned long d_m = 3;
+  unsigned long d_wf = 3;
+  unsigned long d_hf = 3;
+  unsigned long d_s = 1;
+  unsigned long d_p = 1;
+
 
 
   ConvSigmoidLayerTest() {

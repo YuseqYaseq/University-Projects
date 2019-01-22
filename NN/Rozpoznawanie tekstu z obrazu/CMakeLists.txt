@@ -10,14 +10,18 @@ add_executable(Rozpoznawanie_tekstu_z_obrazu
         src/LogisticRegressor.cpp
         src/ConvSigmoidLayer.cpp
         src/MaxPoolLayer.cpp
-        src/ActualConvSigmoidLayer.cpp)
+        src/ActualConvSigmoidLayer.cpp
+        src/SoftMaxLayer.cpp
+        src/ReLULayer.cpp)
 add_executable(Run_Tests
         test/TestSuite.cpp
         src/SigmoidLayer.cpp
         src/LogisticRegressor.cpp
         src/Layer.cpp
         src/ConvSigmoidLayer.cpp
-        src/MaxPoolLayer.cpp)
+        src/MaxPoolLayer.cpp
+        src/SoftMaxLayer.cpp
+        src/ReLULayer.cpp)
 
 target_link_libraries(Rozpoznawanie_tekstu_z_obrazu -lstdc++fs)
 target_link_libraries(Run_Tests -lstdc++fs)

@@ -3,6 +3,7 @@
 //
 #include <random>
 #include <fstream>
+#include <cfloat>
 
 #include "Layer.h"
 
@@ -120,4 +121,51 @@ std::vector<std::vector<AGH_NN::Matrix2D<double>>> AGH_NN::fold(AGH_NN::Matrix2D
     }
   }
   return ret;
+}
+
+void AGH_NN::save_to(std::vector<std::vector<AGH_NN::Matrix2D<double>>> matrix,
+    const char *pathName, std::vector<std::string>& pic_names) {
+  std::fstream file(pathName, std::fstream::out);
+  if(!file.is_open()) {
+    std::cerr << "Failed to open file " << pathName << "!" << std::endl;
+    return;
+  }
+  double MAX = -DBL_MAX;
+  double MIN = DBL_MAX;
+  for(unsigned long ex = 0; ex < matrix.size(); ++ex) {
+    for(unsigned long f_no = 0; f_no < matrix[0].size(); ++f_no) {
+      for(unsigned long y = 0; y < matrix[0][0].get_rows(); ++y) {
+        for(unsigned long x = 0; x < matrix[0][0].get_cols(); ++x) {
+          if(matrix[ex][f_no][y][x] > MAX) {
+            MAX = matrix[ex][f_no][y][x];
+          }
+          if(matrix[ex][f_no][y][x] < MIN) {
+            MIN = matrix[ex][f_no][y][x];
+          }
+        }
+      }
+    }
+  }
+
+
+
+  // scale to [0; 255]
+  // and save
+  file << matrix.size() << std::endl;
+  for(unsigned long ex = 0; ex < matrix.size(); ++ex) {
+    file << pic_names[ex] << std::endl;
+    file << matrix[ex].size() << std::endl;
+    for(unsigned long f_no = 0; f_no < matrix[ex].size(); ++f_no) {
+      file << matrix[ex][f_no].get_rows() << " " << matrix[ex][f_no].get_cols() << std::endl;
+      for(unsigned long y = 0; y < matrix[ex][f_no].get_rows(); ++y) {
+        for(unsigned long x = 0; x < matrix[ex][f_no].get_cols(); ++x) {
+          matrix[ex][f_no][y][x] = 255 * (matrix[ex][f_no][y][x] - MIN) / (MAX - MIN);
+          file << matrix[ex][f_no][y][x] << " ";
+        }
+        file << std::endl;
+      }
+      file << std::endl;
+    }
+  }
+  file.close();
 }

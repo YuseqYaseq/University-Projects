@@ -6,6 +6,7 @@
 #include "ActualConvSigmoidLayer.h"
 
 void AGH_NN::ActualConvSigmoidLayer::forward_propagation(std::vector<std::vector<AGH_NN::Matrix2D<double>>> &X) {
+  k = X.size();
   layer->forward_propagation(X);
   std::vector<std::vector<Matrix2D<double>>> A = layer->getA();
   for(unsigned long ex = 0; ex < k; ++ex) {

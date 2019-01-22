@@ -5,6 +5,7 @@
 
 #include "SigmoidLayer.h"
 #include "ActualConvSigmoidLayer.h"
+#include "SoftMaxLayer.h"
 #include "LogisticRegressor.h"
 #include "MaxPoolLayer.h"
 #include "../test/assert.h"
@@ -21,12 +22,12 @@ const char* LAYER5_FILE = "l5.txt";
 const char* LAYER6_FILE = "l6.txt";
 
 //set when we want to init weights randomly
-#define FROM_SCRATCH
+//#define FROM_SCRATCH
 
 const int size_x = 256;
 const int size_y = 256;
 const int num_of_dim = 3;
-ConvMatrix load_pics(const char* path) {
+ConvMatrix load_pics(const char* path, std::vector<std::string>& names) {
   fs::directory_iterator pics(path);
   std::vector<std::string> words;
   ConvMatrix ret;
@@ -45,14 +46,16 @@ ConvMatrix load_pics(const char* path) {
           throw -1;
         }
         std::vector<AGH_NN::Matrix2D<double>> img(3, AGH_NN::Matrix2D<double>(size_y, size_x, 0.0));
-        for(unsigned long dim = 0; dim < num_of_dim; ++dim) {
-          for(unsigned long y = 0; y < size_y; ++y) {
-            for(unsigned long x = 0; x < size_x; ++x) {
+        for(unsigned long y = 0; y < size_y; ++y) {
+          for(unsigned long x = 0; x < size_x; ++x) {
+            for(unsigned long dim = 0; dim < num_of_dim; ++dim) {
               file >> img[dim][y][x];
-            }
+              img[dim][y][x] /= 255;
           }
         }
+        }
         ret.emplace_back(img);
+        names.emplace_back(s);
       }
     }
   }
@@ -62,7 +65,7 @@ ConvMatrix load_pics(const char* path) {
 int main() {
 
   double learning_rate = 0.1;
-  unsigned long seed = 3;
+  unsigned long seed = 4324;
   double median = 0.0;
   double variance = 0.0001;
 
@@ -72,10 +75,10 @@ int main() {
   unsigned long w1 = 256;
   unsigned long h1 = 256;
   unsigned long m1 = 5;
-  unsigned long wf1 = 3;
-  unsigned long hf1 = 3;
+  unsigned long wf1 = 1;
+  unsigned long hf1 = 1;
   unsigned long s1 = 1;
-  unsigned long p1 = 1;
+  unsigned long p1 = 0;
 
   //maxpool layer2 hyperparams
   unsigned long k2 = k1;
@@ -126,11 +129,19 @@ int main() {
   MaxPoolLayer layer4(k4, d4, w4, h4, wf4, hf4);
   SigmoidLayer layer5(m5, n5);
   SigmoidLayer layer6(m6, n6);
+  SoftMaxLayer layer7;
 
-  layer1.layer->initialize_gaussian(median, variance, 3);
-  layer3.layer->initialize_gaussian(median, variance, 3);
-  layer5.initialize_gaussian(median, variance, 3);
-  layer6.initialize_gaussian(median, variance, 3);
+  layer1.layer->initialize_gaussian(median, variance, seed);
+  layer3.layer->initialize_gaussian(median, variance, seed);
+  layer5.initialize_gaussian(median, variance, seed);
+  layer6.initialize_gaussian(median, variance, seed);
+
+  /*layer1.layer->save_to_file(LAYER1_FILE);
+  layer2.save_to_file(LAYER2_FILE);
+  layer3.layer->save_to_file(LAYER3_FILE);
+  layer4.save_to_file(LAYER4_FILE);
+  layer5.save_to_file(LAYER5_FILE);
+  layer6.save_to_file(LAYER6_FILE);*/
 #else
   ActualConvSigmoidLayer  layer1(LAYER1_FILE);
   MaxPoolLayer            layer2(LAYER2_FILE);
@@ -138,10 +149,13 @@ int main() {
   MaxPoolLayer            layer4(LAYER4_FILE);
   SigmoidLayer            layer5(LAYER5_FILE);
   SigmoidLayer            layer6(LAYER6_FILE);
+  SoftMaxLayer            layer7;
 
 #endif
+
   //data
-  std::vector<std::vector<Matrix2D<double>>> X = load_pics("pics");
+  std::vector<std::string> pic_names;
+  std::vector<std::vector<Matrix2D<double>>> X = load_pics("pics", pic_names);
   Matrix2D<double> Y(k1, m6, 0.0);
   for(unsigned long y = 0; y < k1; ++y) {
     for(unsigned long x = 0; x < m6; ++x) {
@@ -151,30 +165,48 @@ int main() {
     }
   }
 
+  /////
+  //for(const std::string& s : pic_names) {
+  //  std::cout << s << std::endl;
+  //}
+  /////
+
+
   std::cout.precision(10);
-  for(int i = 0; i < 2; ++i)
+  for(int i = 0; i < 0; ++i)
   {
     //forward propagation
     layer1.forward_propagation(X);
+
     layer2.forward_propagation(layer1.layer->getA());
-
     ConvMatrix A2 = layer2.getA();
-    layer3.forward_propagation(A2);
-    layer4.forward_propagation(layer3.layer->getA());
 
+    layer3.forward_propagation(A2);
+
+    layer4.forward_propagation(layer3.layer->getA());
     Matrix2D<double> A4 = unfold(layer4.getA());
+
     layer5.forward_propagation(A4);
 
     Matrix2D<double> A5 = layer5.getA().T();
     layer6.forward_propagation(A5);
 
+    Matrix2D<double> A6 = layer6.getA().T();
+    layer7.forward_propagation(A6);
+
+
+    Matrix2D<double> A7 = layer7.getA().T();
     //compute cost
-    double cost = LogisticRegressor::calculateCost(layer6.getA(), Y);
+    double cost = LogisticRegressor::calculateCost(A7, Y);
+
+
+
 
     //backward propagation
-    AGH_NN::Matrix2D<double> dX5 =
-        layer6.backward_propagation(LogisticRegressor::calculateBackPropDerivatives(layer6.getA(), Y)).T();
+    AGH_NN::Matrix2D<double> dX7 = LogisticRegressor::calculateBackPropDerivatives(A7, Y);
 
+    AGH_NN::Matrix2D<double> dX6 = layer7.backward_propagation(dX7).T();
+    AGH_NN::Matrix2D<double> dX5 = layer6.backward_propagation(dX6).T();
     ConvMatrix dX4 = fold(layer5.backward_propagation(dX5), d4, w4/wf4, h4/hf4);
     ConvMatrix dX3 = layer4.backward_propagation(dX4);
     ConvMatrix dX2 = layer3.backward_propagation(dX3);
@@ -182,19 +214,52 @@ int main() {
     layer1.backward_propagation(dX1);
 
     //update parameters
-    layer1.update_parameters(learning_rate);
-    layer2.update_parameters(learning_rate);
-    layer3.update_parameters(learning_rate);
+    layer1.update_parameters(10 * learning_rate);
+    layer2.update_parameters(10 * learning_rate);
+    layer3.update_parameters(10 * learning_rate);
     layer4.update_parameters(learning_rate);
     layer5.update_parameters(learning_rate);
     layer6.update_parameters(learning_rate);
 
     std::cout << "Cost after " << i << " iterations: " << cost << std::endl;
+    layer1.layer->save_to_file(LAYER1_FILE);
+    layer2.save_to_file(LAYER2_FILE);
+    layer3.layer->save_to_file(LAYER3_FILE);
+    layer4.save_to_file(LAYER4_FILE);
+    layer5.save_to_file(LAYER5_FILE);
+    layer6.save_to_file(LAYER6_FILE);
   }
-  layer1.layer->save_to_file(LAYER1_FILE);
-  layer2.save_to_file(LAYER2_FILE);
-  layer3.layer->save_to_file(LAYER3_FILE);
-  layer4.save_to_file(LAYER4_FILE);
-  layer5.save_to_file(LAYER5_FILE);
-  layer6.save_to_file(LAYER6_FILE);
+
+
+  //predict
+  ConvMatrix d(1, X[0]);
+  //d.emplace_back(X[1]);
+  //d.emplace_back(X[30]);
+  d.emplace_back(X[150]);
+  d.emplace_back(X[70]);
+  std::vector<std::string> names = {
+      pic_names[0],
+      //pic_names[1],
+      //pic_names[30],
+      pic_names[150],
+      pic_names[70]};
+  layer1.layer->forward_propagation(d);
+  save_to(layer1.layer->getA(), "test.txt", names);
+  layer2.forward_propagation(layer1.layer->getA());
+
+  ConvMatrix A2 = layer2.getA();
+  layer3.forward_propagation(A2);
+  layer4.forward_propagation(layer3.layer->getA());
+  save_to(layer3.layer->getA(), "test2.txt", names);
+
+  Matrix2D<double> A4 = unfold(layer4.getA());
+  layer5.forward_propagation(A4);
+
+  Matrix2D<double> A5 = layer5.getA().T();
+  layer6.forward_propagation(A5);
+
+  Matrix2D<double> A6 = layer6.getA().T();
+  layer7.forward_propagation(A6);
+
+  std::cout << layer7.getA() << std::endl;
 }
