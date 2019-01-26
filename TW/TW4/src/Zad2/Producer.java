@@ -20,7 +20,7 @@ public class Producer implements Runnable {
         for(int i = 0; i < numOfIterations; ++i) {
             int randomNum = ThreadLocalRandom.current().nextInt(0, M + 1);
             long time = monitor.produce(id, randomNum);
-            System.out.println("P " + randomNum + " " + time);
+            //System.out.println("P " + randomNum + " " + time);
         }
     }
 }

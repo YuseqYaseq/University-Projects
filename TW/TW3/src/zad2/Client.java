@@ -12,11 +12,13 @@ public class Client implements Runnable {
     @Override
     public void run() {
         try {
-            System.out.println(id + " waiting for the table.");
+            System.out.println(System.nanoTime()/1000 + " " + id + " waiting for the table.");
             waiter.takeTable(id);
-            System.out.println(id + " eating.");
+            System.out.println(System.nanoTime()/1000 + " " + id + " eating.");
+            //Thread.sleep(100);
+
             waiter.leaveTable();
-            System.out.println(id + " left the table");
+            System.out.println(System.nanoTime()/1000 + " " + id + " left the table");
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }

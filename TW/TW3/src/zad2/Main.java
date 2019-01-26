@@ -14,8 +14,10 @@ public class Main {
                 Thread thread2 = new Thread(new Client(i, waiter));
                 threads.add(thread1);
                 threads.add(thread2);
-                thread1.start();
-                thread2.start();
+            }
+
+            for(int i = 0; i < 100; i++) {
+                threads.get(i).start();
             }
 
             for (Thread t : threads) {

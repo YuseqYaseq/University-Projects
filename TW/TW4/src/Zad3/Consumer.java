@@ -1,4 +1,4 @@
-package Zad2;
+package Zad3;
 
 import java.util.concurrent.ThreadLocalRandom;
 
