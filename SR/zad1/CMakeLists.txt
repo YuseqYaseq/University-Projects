@@ -3,6 +3,8 @@ project(zad1)
 
 set(CMAKE_CXX_STANDARD 17)
 
-
-add_library(pthread TokenRingClient.cpp)
-add_executable(zad1 main.cpp TokenRingClient.cpp TokenRingClient.h)
+cmake_minimum_required (VERSION 2.6)
+find_package (Threads)
+add_executable(zad1 main.cpp TokenRingClient.cpp mqueue.cpp Token.h)
+add_compile_options(-Wall)
+target_link_libraries (zad1 ${CMAKE_THREAD_LIBS_INIT})
