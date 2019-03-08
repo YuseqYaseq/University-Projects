@@ -29,7 +29,7 @@ void QInit(struct MQueue* q, int size){
     
 }
 
-int QPut(struct MQueue* q, std::string& e){
+int QPut(struct MQueue* q, Message& e){
     //sem_wait(q->empty);
     //sem_wait(q->read);
     /*if(q->queueIn == ((q->queueOut -1 + q->size) % q->size)){
@@ -54,7 +54,7 @@ int QPut(struct MQueue* q, std::string& e){
     return 0;
 }
 
-std::string QGet(struct MQueue* q){
+Message QGet(struct MQueue* q){
     //sem_wait(q->full);
     //sem_wait(q->read);
     
@@ -63,7 +63,7 @@ std::string QGet(struct MQueue* q){
         pthread_cond_wait(&(q->empty), &(q->mutex));
     }
     
-    std::string e = q->elems[q->queueOut];
+    Message e = q->elems[q->queueOut];
     q->queueOut = (q->queueOut + 1) % q->size;
     
     pthread_cond_signal(&(q->full));
@@ -84,7 +84,7 @@ std::string QGet(struct MQueue* q){
     return e;
 }*/
 
-std::string QTryGet(struct MQueue* q){
+Message QTryGet(struct MQueue* q){
     //sem_trywait(q->full);
     //if(errno == EAGAIN)return NULL;
     //sem_wait(q->read);
@@ -92,10 +92,12 @@ std::string QTryGet(struct MQueue* q){
     pthread_mutex_lock(&(q->mutex));
     if(q->queueIn == q->queueOut){
         pthread_mutex_unlock(&(q->mutex));
-        return "";
+        Message ret;
+        ret.content[0] = 0;
+        return ret;
     }
     
-    std::string e = q->elems[q->queueOut];
+    Message e = q->elems[q->queueOut];
     q->queueOut = (q->queueOut + 1) % q->size;
     
     

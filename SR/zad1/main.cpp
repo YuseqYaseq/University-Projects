@@ -21,6 +21,8 @@ int main(int argc, const char* argv[]) {
             .set_next_port(port2)
             .build();
 
+    client1.get_ip();
+
     TokenRingClient client2 = builder
             .set_id(id2)
             .set_next_ip(localhost)
@@ -31,15 +33,30 @@ int main(int argc, const char* argv[]) {
     client1.run();
     client2.run();
 
-    const char* msg1 = "dupa1";
-    const char* msg2 = "dupa2";
+    Message msg1;
+    Message msg2;
+    msg1.content[0] = 'd';
+    msg1.content[1] = 'u';
+    msg1.content[2] = 'p';
+    msg1.content[3] = 'a';
+    msg1.content[4] = '1';
+    msg2.content[0] = 'd';
+    msg2.content[1] = 'u';
+    msg2.content[2] = 'p';
+    msg2.content[3] = 'a';
+    msg2.content[4] = '2';
+    msg1.ip_to[0] = msg2.ip_to[0] = 10;
+    msg1.ip_to[1] = msg2.ip_to[1] = 0;
+    msg1.ip_to[2] = msg2.ip_to[2] = 2;
+    msg1.ip_to[3] = msg2.ip_to[3] = 15;
+    msg1.port_to = port1; msg2.port_to = port1;
     client1.send_message(msg1);
     client1.send_message(msg2);
 
-    sleep(10);
+    sleep(1000);
 
-    std::cout << client2.read_message() << std::endl;
-    std::cout << client2.read_message() << std::endl;
+    std::cout << client2.read_message().content << std::endl;
+    std::cout << client2.read_message().content << std::endl;
 
     client1.kill();
     client2.kill();

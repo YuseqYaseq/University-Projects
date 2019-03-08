@@ -9,6 +9,7 @@
 #include <thread>
 #include <vector>
 #include "mqueue.h"
+#include "Token.h"
 
 class TokenRingClient {
 public:
@@ -59,6 +60,8 @@ public:
             client.next_ip[3] = this->next_ip[3];
             client.has_token = this->has_token;
             client.has_read = true;
+            client.token.currently_used = false;
+
             QInit(&client.send_queue, 500);
             QInit(&client.read_queue, 500);
 
@@ -76,9 +79,10 @@ public:
     void run();
     void kill();
 
-    void send_message(std::string message);
-    std::string read_message();
+    void send_message(Message message);
+    Message read_message();
 
+    std::string get_ip();
 
 private:
     //char send_buffer[1024] = {0};
@@ -93,9 +97,12 @@ private:
 
     const char* id;
     unsigned short port;
+    unsigned short ip[4];
     unsigned short next_port;
     unsigned short next_ip[4];
+
     bool has_token;
+    Token token;
 
     std::thread* th;
 
@@ -108,6 +115,10 @@ private:
     static void* init_server(TokenRingClient*);
     static void* init_client(TokenRingClient*);
     static void* run_callback(TokenRingClient*);
+
+    void send_msg();
+    void read_msg();
+    bool is_msg_to_me(Message msg);
 
 
 };

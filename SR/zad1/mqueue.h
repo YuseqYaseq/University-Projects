@@ -2,10 +2,10 @@
 #define _M_QUEUE_H_
 
 #include <pthread.h>
-#include <string>
+#include "Message.h"
 
 struct MQueue{
-    std::string elems[500];
+    Message elems[500];
     int size;
     int queueIn;
     int queueOut;
@@ -16,10 +16,10 @@ struct MQueue{
 };
 
 void QInit(struct MQueue* q, int size);
-int QPut(struct MQueue* q, std::string& e);
-std::string QGet(struct MQueue* q);
+int QPut(struct MQueue* q, Message& e);
+Message QGet(struct MQueue* q);
 //Try to take QGet version. Leaves if Queue is empty.
-std::string QTryGet(struct MQueue* q);
+Message QTryGet(struct MQueue* q);
 void QDel(struct MQueue* q);
 int QEmpty(struct MQueue* q);
 

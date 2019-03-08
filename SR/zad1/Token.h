@@ -5,13 +5,11 @@
 #ifndef ZAD1_TOKEN_H
 #define ZAD1_TOKEN_H
 
+#include "Message.h"
+
 struct Token {
-    unsigned short ip_from[4];
-    unsigned short port_from;
-    unsigned short ip_to[4];
-    unsigned short port_to[4];
+    Message msg;
     bool currently_used;
-    char msg[1024];
 };
 
 #endif //ZAD1_TOKEN_H

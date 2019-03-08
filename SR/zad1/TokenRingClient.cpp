@@ -8,6 +8,8 @@
 #include <unistd.h>
 #include <iostream>
 #include <cstring>
+#include <ifaddrs.h>
+#include <sstream>
 #include "TokenRingClient.h"
 #include "Token.h"
 
@@ -16,45 +18,74 @@ void TokenRingClient::run() {
 }
 
 void TokenRingClient::kill() {
-
     th->detach();
     delete th;
     th = nullptr;
+    QDel(&send_queue);
+    QDel(&read_queue);
 }
 
-std::string TokenRingClient::read_message() {
+Message TokenRingClient::read_message() {
     return QTryGet(&read_queue);
 }
 
-void TokenRingClient::send_message(std::string message) {
-    QPut(&send_queue, message);
+void TokenRingClient::send_message(Message msg) {
+    QPut(&send_queue, msg);
 }
 
 void* TokenRingClient::run_callback(TokenRingClient* client_info) {
 
+    client_info->get_ip();
     std::thread server(init_server, client_info);
     std::thread client(init_client, client_info);
     server.join();
     client.join();
 
     while(true) {
-        if (client_info->has_token) {
-            sleep(1);
-            std::string data = QTryGet(&client_info->send_queue);
-            if(!data.empty())
-                std::cout << client_info->id << " sends: " << data << std::endl;
-            send(client_info->write_socket, data.c_str(), data.length()+1, 0);
-            client_info->has_token = false;
-        }
-        read(client_info->read_socket, &client_info->data, 1024);
-        std::string msg(client_info->data);
-        if(!msg.empty()) {
-            QPut(&client_info->read_queue, msg);
-            std::cout << client_info->id << " reads: " << client_info->data << std::endl;
-        }
-        client_info->has_token = true;
+        sleep(1);
+        client_info->send_msg();
+        client_info->read_msg();
     }
     return nullptr;
+}
+
+void TokenRingClient::send_msg() {
+    if (has_token) {
+        if(!token.currently_used) {
+            token.msg = QTryGet(&send_queue);
+            if (strlen(token.msg.content) > 0) {
+                token.currently_used = true;
+                std::cout << id << " sends: " << token.msg.content << std::endl;
+            }
+        }
+        send(write_socket, &token, sizeof(token), 0);
+        has_token = false;
+    }
+}
+
+void TokenRingClient::read_msg() {
+    read(read_socket, &token, sizeof(token));
+    if(token.currently_used) {
+        if(is_msg_to_me(token.msg)) {
+            QPut(&read_queue, token.msg);
+            std::cout << id << " reads: " << token.msg.content << std::endl;
+            token.currently_used = false;
+        }
+
+    }
+    has_token = true;
+}
+
+bool TokenRingClient::is_msg_to_me(Message msg) {
+    if(msg.port_to != port)
+        return false;
+    if(msg.ip_to[0] == ip[0] && msg.ip_to[1] == ip[1]
+       && msg.ip_to[2] == ip[2] && msg.ip_to[3] == ip[3])
+        return true;
+    if(msg.ip_to[0] == 127 && msg.ip_to[1] == 0
+       && msg.ip_to[2] == 0 && msg.ip_to[3] == 1)
+        return true;
+    return false;
 }
 
 void* TokenRingClient::init_server(TokenRingClient* client_info) {
@@ -121,8 +152,10 @@ void* TokenRingClient::init_client(TokenRingClient* client_info) {
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(client_info->next_port);
 
-    // Convert IPv4 and IPv6 addresses from text to binary form
-    if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0)
+    std::stringstream text_ip;
+    text_ip << client_info->ip[0] << "." << client_info->ip[1]
+        << "." << client_info->ip[2] << "." << client_info->ip[3];
+    if(inet_pton(AF_INET, text_ip.str().c_str(), &serv_addr.sin_addr)<=0)
     {
         std::cerr << "\nInvalid address/ Address not supported \n" << std::endl;
         printf("\nInvalid address/ Address not supported \n");
@@ -140,4 +173,32 @@ void* TokenRingClient::init_client(TokenRingClient* client_info) {
         }
     } while(res < 0);
     return nullptr;
+}
+
+std::string TokenRingClient::get_ip() {
+    struct ifaddrs * ifAddrStruct=NULL;
+    struct ifaddrs * ifa=NULL;
+    void * tmpAddrPtr=NULL;
+
+    getifaddrs(&ifAddrStruct);
+
+    for (ifa = ifAddrStruct; ifa != NULL; ifa = ifa->ifa_next) {
+        if (!ifa->ifa_addr) {
+            continue;
+        }
+        if (ifa->ifa_addr->sa_family == AF_INET) { // check it is IP4
+            // is a valid IP4 Address
+            tmpAddrPtr=&((struct sockaddr_in *)ifa->ifa_addr)->sin_addr;
+            char addressBuffer[INET_ADDRSTRLEN];
+            inet_ntop(AF_INET, tmpAddrPtr, addressBuffer, INET_ADDRSTRLEN);
+            if(strcmp(ifa->ifa_name, "lo") == 0) continue;
+            std::string ret(addressBuffer);
+            if (ifAddrStruct!=NULL) freeifaddrs(ifAddrStruct);
+            ip[0] = atoi(strtok(addressBuffer, "."));
+            ip[1] = atoi(strtok(nullptr, "."));
+            ip[2] = atoi(strtok(nullptr, "."));
+            ip[3] = atoi(strtok(nullptr, "."));
+            return ret;
+        }
+    }
 }
