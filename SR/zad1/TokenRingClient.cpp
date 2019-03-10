@@ -27,10 +27,15 @@ void TokenRingClient::kill() {
 }
 
 Message TokenRingClient::read_message() {
-    return QTryGet(&read_queue);
+    return QGet(&read_queue);
 }
 
 void TokenRingClient::send_message(Message msg) {
+    msg.port_from = port;
+    msg.ip_from[0] = ip[0];
+    msg.ip_from[1] = ip[1];
+    msg.ip_from[2] = ip[2];
+    msg.ip_from[3] = ip[3];
     QPut(&send_queue, msg);
 }
 
@@ -56,9 +61,7 @@ void* TokenRingClient::run_callback(TokenRingClient* client_info) {
 }
 
 void* TokenRingClient::join_network(TokenRingClient* client_info) {
-    std::cout << "test1" << std::endl;
     init_client(client_info);
-    std::cout << "test2" << std::endl;
     Token token;
     token.new_client_flag = 1;
     token.currently_used = false;
@@ -91,11 +94,16 @@ void* TokenRingClient::join_network(TokenRingClient* client_info) {
 
 void TokenRingClient::send_msg() {
     if (has_token) {
-        if(!token.currently_used) {
-            token.msg = QTryGet(&send_queue);
-            if (strlen(token.msg.content) > 0) {
+        if (!QEmpty(&send_queue)) {
+            if(!token.currently_used && queue_pos == token.queue_curr) {
                 token.currently_used = true;
-                std::cout << id << " sends: " << token.msg.content << std::endl;
+                token.queue_curr++;
+                token.msg = QGet(&send_queue);
+                token.new_client_flag = 0;
+                queue_pos = 0;
+            } else if(queue_pos == 0){
+                queue_pos = token.queue_max;
+                token.queue_max++;
             }
         }
         while(send(write_socket, &token, sizeof(token), 0) < 0) {
@@ -107,6 +115,8 @@ void TokenRingClient::send_msg() {
 }
 
 void TokenRingClient::read_msg() {
+    if(print_full_diagnostic)
+        std::cout << "Token received." << std::endl;
     if(read(read_socket, &token, sizeof(token)) == 0) {
         std::cerr << "Failed to read msg." << std::endl;
     }
@@ -116,6 +126,7 @@ void TokenRingClient::read_msg() {
                 QPut(&read_queue, token.msg);
                 std::cout << id << " reads: " << token.msg.content << std::endl;
                 token.currently_used = false;
+
             } else {
                 std::cout << id << ": not my message." << std::endl;
             }
@@ -230,7 +241,6 @@ void* TokenRingClient::init_addition_service(TokenRingClient* client_info) {
             perror("accept");
             exit(EXIT_FAILURE);
         }
-        std::cout << "addition service connection" << std::endl;
         Token response;
         read(client_info->addition_service_socket, &response, sizeof(response));
         if (response.new_client_flag == 1) {

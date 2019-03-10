@@ -1,77 +1,74 @@
 #include <iostream>
 #include <unistd.h>
+#include <cstring>
+#include <sstream>
+#include <signal.h>
 
 #include "TokenRingClient.h"
 
-const char* id1 = "jeden";
-const char* id2 = "dwa";
-const char* id3 = "trzy";
-const unsigned short port1 = 10007;
-const unsigned short port2 = 10008;
-const unsigned short port3 = 10009;
+const char* message[4] = {"message1", "message2", "message3", "message4"};
 
-const unsigned short localhost[4] = {127, 0, 0, 1};
+
+const unsigned short client1_address[4] = {10, 0, 2, 15};
 
 int main(int argc, const char* argv[]) {
 
+    if(argc < 4) {
+        std::cout << "Usage: main a b [c d] e" << std::endl;
+        std::cout << "a - client port" << std::endl;
+        std::cout << "b - client name" << std::endl;
+        std::cout << "c - port where you want to connect to" << std::endl;
+        std::cout << "d - ip address where you want to connect to" << std::endl;
+        std::cout << "e - 1: print full diagnostic info 0: dont" << std::endl;
+        std::cout << "Don't use c and d if you want to connect Client to itself" << std::endl;
+        return 0;
+    }
+    signal(SIGPIPE, SIG_IGN);
     TokenRingClient::Builder builder;
+    TokenRingClient client;
+    Message msg;
+    std::stringstream parser;
+    const char* client_id = argv[2];
+    unsigned short client_port;
+    char tmp;
+    unsigned short destination_port;
+    unsigned short destination_ip[4];
 
-    TokenRingClient client1 = builder.set_active_token()
-            .dont_join()
-            .set_id(id1)
-            //.set_next_ip(localhost)
-            .set_port(port1)
-            //.set_next_port(port2)
+    client_port = atoi(argv[1]);
+
+    if(argc < 6) {
+        builder.set_active_token()
+                .dont_join();
+        if(atoi(argv[3]))
+            builder.set_print_diagnostic();
+    } else {
+        destination_port = atoi(argv[3]);
+        parser << argv[4];
+        parser >> destination_ip[0] >> tmp >> destination_ip[1] >> tmp
+                >> destination_ip[2] >> tmp >> destination_ip[3];
+        builder.set_next_port(destination_port);
+        builder.set_next_ip(destination_ip);
+        if(atoi(argv[5]))
+            builder.set_print_diagnostic();
+    }
+
+    client = builder.set_id(client_id)
+            .set_port(client_port)
             .build();
+    std::string command;
+    client.run();
+    while(true) {
+        std::cin >> command;
+        if (command == "q" || command == "exit" || command == "quit") break;
+        std::cin >> msg.content >> msg.port_to >> msg.ip_to[0] >> msg.ip_to[1]
+            >> msg.ip_to[2] >> msg.ip_to[3];
+        client.send_message(msg);
+    }
 
-
-    TokenRingClient client2 = builder
-            .set_id(id2)
-            .set_next_ip(localhost)
-            .set_port(port2)
-            .set_next_port(port1)
-            .build();
-
-    TokenRingClient client3 = builder
-            .set_id(id3)
-            .set_next_ip(localhost)
-            .set_port(port3)
-            .set_next_port(port1)
-            .build();
-
-    client1.run();
-
-    Message msg1;
-    Message msg2;
-    msg1.content[0] = 'd';
-    msg1.content[1] = 'u';
-    msg1.content[2] = 'p';
-    msg1.content[3] = 'a';
-    msg1.content[4] = '1';
-    msg2.content[0] = 'd';
-    msg2.content[1] = 'u';
-    msg2.content[2] = 'p';
-    msg2.content[3] = 'a';
-    msg2.content[4] = '2';
-    msg1.ip_to[0] = msg2.ip_to[0] = 10;
-    msg1.ip_to[1] = msg2.ip_to[1] = 0;
-    msg1.ip_to[2] = msg2.ip_to[2] = 2;
-    msg1.ip_to[3] = msg2.ip_to[3] = 15;
-    msg1.port_to = port1; msg2.port_to = port1;
-    for(int i = 0; i < 10; ++i)
-    client1.send_message(msg1);
-    client2.send_message(msg2);
-
-    sleep(2);
-    client2.run();
-    sleep(2);
-    client3.run();
-    sleep(1000);
-
-    std::cout << client2.read_message().content << std::endl;
-    std::cout << client2.read_message().content << std::endl;
-
-    client1.kill();
-    client2.kill();
-    return 0;
+    while(true) {
+        msg = client.read_message();
+        std::cout << "Message from " << msg.ip_from[0] << "." << msg.ip_from[1]
+            << "." << msg.ip_from[2] << "." << msg.ip_from[3] << ":" << msg.port_from
+            << "\t" << msg.content << std::endl;
+    }
 }

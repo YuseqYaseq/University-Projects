@@ -22,6 +22,7 @@ public:
         Builder() {
             has_token = false;
             is_single_node = false;
+            print_full_diagnostic = false;
         }
 
         Builder& dont_join() {
@@ -57,6 +58,11 @@ public:
             return *this;
         }
 
+        Builder& set_print_diagnostic() {
+            print_full_diagnostic = true;
+            return *this;
+        }
+
         TokenRingClient build() {
             TokenRingClient client;
             client.id = this->id;
@@ -78,12 +84,18 @@ public:
             }
             client.has_token = this->has_token;
             client.token.currently_used = false;
+            client.token.queue_max = 0;
+            client.token.queue_curr = 0;
+            client.token.new_client_flag = 0;
             client.kill_flag = false;
+            client.queue_pos = 0;
+            client.print_full_diagnostic = print_full_diagnostic;
             QInit(&client.send_queue, 500);
             QInit(&client.read_queue, 500);
 
             this->has_token = false;
             this->is_single_node = false;
+            this->print_full_diagnostic = false;
             return client;
         }
 
@@ -94,6 +106,7 @@ public:
         unsigned short next_ip[4];
         bool has_token;
         bool is_single_node;
+        bool print_full_diagnostic;
     };
     void run();
     void kill();
@@ -101,14 +114,13 @@ public:
     void send_message(Message message);
     Message read_message();
 
-    std::string get_ip();
-
 private:
 
     MQueue send_queue;
     MQueue read_queue;
 
     bool kill_flag;
+    unsigned long queue_pos;
 
     const char* id;
     unsigned short port;
@@ -119,13 +131,13 @@ private:
     bool has_token;
     Token token;
 
+    bool print_full_diagnostic;
+
     std::thread* th;
 
     sockaddr_in server_addr;
     unsigned int addr_length;
 
-
-    static const int sleep_time = 1000;
     static constexpr short multicast_logging_ip[4] = {230, 0, 0, 0};
 
     int server_fd;
@@ -145,7 +157,7 @@ private:
     void read_msg();
     bool is_msg_to_me(Message msg);
 
-
+    std::string get_ip();
 };
 
 

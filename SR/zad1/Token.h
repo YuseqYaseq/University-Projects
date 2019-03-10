@@ -10,6 +10,8 @@
 struct Token {
     Message msg;
     bool currently_used;
+    unsigned long queue_max;
+    unsigned long queue_curr;
 
     //0 - standard token
     //1 - I want to be your server
