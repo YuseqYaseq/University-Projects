@@ -4,12 +4,12 @@
 
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <arpa/inet.h>
 #include <unistd.h>
 #include <iostream>
 #include <cstring>
 #include <ifaddrs.h>
 #include <sstream>
+
 #include "TokenRingClient.h"
 #include "Token.h"
 
@@ -18,6 +18,7 @@ void TokenRingClient::run() {
 }
 
 void TokenRingClient::kill() {
+    kill_flag = true;
     th->detach();
     delete th;
     th = nullptr;
@@ -35,16 +36,55 @@ void TokenRingClient::send_message(Message msg) {
 
 void* TokenRingClient::run_callback(TokenRingClient* client_info) {
 
-    client_info->get_ip();
+    if(!client_info->has_token) {
+        join_network(client_info);
+    }
+
     std::thread server(init_server, client_info);
     std::thread client(init_client, client_info);
     server.join();
     client.join();
 
-    while(true) {
+    std::thread addition_service(init_addition_service, client_info);
+
+    while(!client_info->kill_flag) {
         sleep(1);
         client_info->send_msg();
         client_info->read_msg();
+    }
+    return nullptr;
+}
+
+void* TokenRingClient::join_network(TokenRingClient* client_info) {
+    std::cout << "test1" << std::endl;
+    init_client(client_info);
+    std::cout << "test2" << std::endl;
+    Token token;
+    token.new_client_flag = 1;
+    token.currently_used = false;
+    token.msg.port_from = client_info->port;
+    token.msg.ip_from[0] = client_info->ip[0];
+    token.msg.ip_from[1] = client_info->ip[1];
+    token.msg.ip_from[2] = client_info->ip[2];
+    token.msg.ip_from[3] = client_info->ip[3];
+    if(send(client_info->write_socket, &token, sizeof(token), 0) < 0) {
+        std::cerr << "Failed to send token 1." << std::endl;
+    }
+    if(read(client_info->write_socket, &token, sizeof(token)) == 0) {
+        std::cerr << "Failed to read join msg." << std::endl;
+    }
+
+    token.new_client_flag = 2;
+    client_info->next_port = token.msg.port_to;
+    client_info->next_ip[0] = token.msg.ip_to[0];
+    client_info->next_ip[1] = token.msg.ip_to[1];
+    client_info->next_ip[2] = token.msg.ip_to[2];
+    client_info->next_ip[3] = token.msg.ip_to[3];
+
+    close(client_info->write_socket);
+    init_client(client_info);
+    if(send(client_info->write_socket, &token, sizeof(token), 0) < 0) {
+        std::cerr << "Failed to send token 2." << std::endl;
     }
     return nullptr;
 }
@@ -58,22 +98,32 @@ void TokenRingClient::send_msg() {
                 std::cout << id << " sends: " << token.msg.content << std::endl;
             }
         }
-        send(write_socket, &token, sizeof(token), 0);
+        while(send(write_socket, &token, sizeof(token), 0) < 0) {
+            std::cerr << "Failed to send msg. Retrying in 1 second" << std::endl;
+            sleep(1);
+        }
         has_token = false;
     }
 }
 
 void TokenRingClient::read_msg() {
-    read(read_socket, &token, sizeof(token));
-    if(token.currently_used) {
-        if(is_msg_to_me(token.msg)) {
-            QPut(&read_queue, token.msg);
-            std::cout << id << " reads: " << token.msg.content << std::endl;
-            token.currently_used = false;
-        }
-
+    if(read(read_socket, &token, sizeof(token)) == 0) {
+        std::cerr << "Failed to read msg." << std::endl;
     }
-    has_token = true;
+    if(token.new_client_flag == 0) {
+        if (token.currently_used) {
+            if (is_msg_to_me(token.msg)) {
+                QPut(&read_queue, token.msg);
+                std::cout << id << " reads: " << token.msg.content << std::endl;
+                token.currently_used = false;
+            } else {
+                std::cout << id << ": not my message." << std::endl;
+            }
+        }
+        has_token = true;
+    } else {
+        std::cerr << "Bad token received." << std::endl;
+    }
 }
 
 bool TokenRingClient::is_msg_to_me(Message msg) {
@@ -89,19 +139,18 @@ bool TokenRingClient::is_msg_to_me(Message msg) {
 }
 
 void* TokenRingClient::init_server(TokenRingClient* client_info) {
-    int server_fd;
     int opt = 1;
-    sockaddr_in server_addr;
-    int addr_length = sizeof(server_addr);
+    client_info->addr_length = sizeof(client_info->server_addr);
 
-    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
+
+    if ((client_info->server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
     {
-        //std::cerr << "socket failed" << std::endl;
+        std::cerr << "socket failed" << std::endl;
         perror("socket failed p");
         exit(EXIT_FAILURE);
     }
 
-    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
+    if (setsockopt(client_info->server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
                    &opt, sizeof(opt)))
     {
         std::cerr << "setsockopt failed" << std::endl;
@@ -109,18 +158,17 @@ void* TokenRingClient::init_server(TokenRingClient* client_info) {
         exit(EXIT_FAILURE);
     }
 
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_addr.s_addr = INADDR_ANY;
-    server_addr.sin_port = htons( client_info->port );
+    client_info->server_addr.sin_family = AF_INET;
+    client_info->server_addr.sin_addr.s_addr = INADDR_ANY;
+    client_info->server_addr.sin_port = htons( client_info->port );
 
-    if (bind(server_fd, (struct sockaddr *)&server_addr,
-             sizeof(server_addr))<0)
+    if (bind(client_info->server_fd, (struct sockaddr *)&client_info->server_addr, client_info->addr_length)<0)
     {
         std::cerr << "bind failed" << std::endl;
         perror("bind failed");
         exit(EXIT_FAILURE);
     }
-    if (listen(server_fd, 3) < 0)
+    if (listen(client_info->server_fd, 3) < 0)
     {
         std::cerr << "listen failed" << std::endl;
         perror("listen");
@@ -128,8 +176,7 @@ void* TokenRingClient::init_server(TokenRingClient* client_info) {
     }
 
 
-    if ((client_info->read_socket = accept(server_fd, (struct sockaddr *)&server_addr,
-                             (socklen_t*)&addr_length))<0)
+    if ((client_info->read_socket = accept(client_info->server_fd, nullptr, nullptr))<0)
     {
         std::cerr << "accept failed" << std::endl;
         perror("accept");
@@ -168,10 +215,54 @@ void* TokenRingClient::init_client(TokenRingClient* client_info) {
         res = connect(client_info->write_socket, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
         if(res < 0) {
             std::cout << client_info->id <<
-                ": connection failed. Retrying in 1 second" << std::endl;
+                ": connection failed. \n" << "Retrying in 1 second" << std::endl;
+            perror(strerror(errno));
             sleep(1);
         }
     } while(res < 0);
+    return nullptr;
+}
+
+void* TokenRingClient::init_addition_service(TokenRingClient* client_info) {
+    while(true) {
+        if ((client_info->addition_service_socket = accept(client_info->server_fd, nullptr, nullptr)) < 0) {
+            std::cerr << "accept failed" << std::endl;
+            perror("accept");
+            exit(EXIT_FAILURE);
+        }
+        std::cout << "addition service connection" << std::endl;
+        Token response;
+        read(client_info->addition_service_socket, &response, sizeof(response));
+        if (response.new_client_flag == 1) {
+            close(client_info->write_socket);
+
+            response.msg.port_to = client_info->next_port;
+            response.msg.ip_to[0] = client_info->next_ip[0];
+            response.msg.ip_to[1] = client_info->next_ip[1];
+            response.msg.ip_to[2] = client_info->next_ip[2];
+            response.msg.ip_to[3] = client_info->next_ip[3];
+
+            client_info->next_port = response.msg.port_from;
+            client_info->next_ip[0] = response.msg.ip_from[0];
+            client_info->next_ip[1] = response.msg.ip_from[1];
+            client_info->next_ip[2] = response.msg.ip_from[2];
+            client_info->next_ip[3] = response.msg.ip_from[3];
+
+            if (send(client_info->addition_service_socket, &response, sizeof(response), 0) < 0) {
+                std::cerr << "Failed to respond to token 1" << std::endl;
+            }
+
+            init_client(client_info);
+
+        } else if (response.new_client_flag == 2) {
+            close(client_info->read_socket);
+            if ((client_info->read_socket = accept(client_info->server_fd, nullptr, nullptr)) < 0) {
+                std::cerr << "accept failed" << std::endl;
+                perror("accept");
+                exit(EXIT_FAILURE);
+            }
+        }
+    }
     return nullptr;
 }
 
