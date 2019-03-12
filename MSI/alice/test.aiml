@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<aiml version="1.0.1" xmlns="http://alicebot.org/2001/AIML-1.0.1"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://alicebot.org/2001/AIML-1.0.1
+http://aitools.org/aiml/schema/AIML.xsd">
+	<category>
+		<pattern>Dzien dobry</pattern>
+		<template><srai>Czesc</srai></template>
+		</category>
+		<category>
+		<pattern>Witaj</pattern>
+		<template><srai>Czesc</srai></template>
+		</category>
+		<category>
+		<pattern>Dobry wieczor</pattern>
+		<template><srai>Czesc</srai></template>
+	</category>
+	
+	<category><pattern>Czesc</pattern><template>Czesc</template></category>
+	
+	<category>
+		<pattern>Czym jest hipopotam</pattern>
+		<template>Zwierzeciem</template>
+	</category>
+	<category>
+		<pattern>Czy wiesz * czym jest * </pattern>
+		<template><srai>Czym jest <star/></srai></template>
+	</category>
+	
+	
+</aiml>
