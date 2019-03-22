@@ -1,0 +1,13 @@
+option java_package = "protos";
+option java_outer_classname = "HashMapProtos";
+
+message HashMapOperation {
+    required OperationType type = 1;
+    required string key = 2;
+    required double value = 3;
+
+    enum OperationType{
+        PUT = 0;
+        REMOVE = 1;
+    }
+}
