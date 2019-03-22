@@ -1,4 +1,6 @@
 .idea/
+out/
+lib/
 *.iml
 node_modules/
 
