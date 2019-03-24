@@ -1,13 +1,11 @@
-import org.jgroups.JChannel;
-import org.jgroups.Message;
-import org.jgroups.ReceiverAdapter;
-import org.jgroups.View;
+import org.jgroups.*;
 import org.jgroups.protocols.*;
 import org.jgroups.protocols.pbcast.*;
 import org.jgroups.stack.ProtocolStack;
 import protos.HashMapProtos;
 
 import java.io.*;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -96,8 +94,30 @@ public class DistributedMap implements SimpleStringMap {
         channel.setReceiver(new ReceiverAdapter(){
             @Override
             public void viewAccepted(View view) {
-                super.viewAccepted(view);
-                System.out.println(view.toString());
+                if (view instanceof MergeView) {
+                    MergeView tmp=(MergeView)view;
+                    List<View> subgroups = tmp.getSubgroups();
+                    View tmp_view=subgroups.get(0);
+                    Address local_addr = channel.getAddress();
+                    if(!tmp_view.getMembers().contains(local_addr)) {
+                        System.out.println("Not member of the new primary partition. Reaquiring state.");
+                        try {
+                            channel.getState(null, 30000);
+                        }
+                        catch(Exception ex) {
+                            System.err.println(ex.toString());
+                            ex.printStackTrace();
+                        }
+                    }
+                    else {
+                        System.out.println("Member of the new primary partition. State unchanged.");
+                    }
+
+
+                } else {
+                    super.viewAccepted(view);
+                    System.out.println(view.toString());
+                }
             }
 
             public void receive(Message msg) {
