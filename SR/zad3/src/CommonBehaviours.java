@@ -5,7 +5,8 @@ public class CommonBehaviours {
     public static ConsumerBehaviour infoBehaviour = (String consumerTag, Envelope envelope,
                                                AMQP.BasicProperties properties, byte[] body) -> {
         try {
-            System.out.println("info: " + new String(body, "UTF-8"));
+            System.out.println("Info from " + properties.getReplyTo() + ": "
+                    + new String(body, "UTF-8"));
         } catch (Exception e) {
             e.printStackTrace();
         }

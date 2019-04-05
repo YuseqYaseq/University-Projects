@@ -45,13 +45,16 @@ public class Doctor {
 
     public void sendElbowRequest() throws IOException {
         requestElbowChannel.basicPublish(Factory.REQUEST_ELBOW_NAME, "", msgProperties, "elbow request".getBytes());
+        logChannel.basicPublish(Factory.LOG_NAME, "", msgProperties, "elbow request log".getBytes());
     }
 
     public void sendHipRequest() throws IOException {
         requestHipChannel.basicPublish(Factory.REQUEST_HIP_NAME, "", msgProperties, "hip request".getBytes());
+        logChannel.basicPublish(Factory.LOG_NAME, "", msgProperties, "hip request log".getBytes());
     }
 
     public void sendKneeRequest() throws IOException {
         requestKneeChannel.basicPublish(Factory.REQUEST_KNEE_NAME, "", msgProperties, "knee request".getBytes());
+        logChannel.basicPublish(Factory.LOG_NAME, "", msgProperties, "knee request log".getBytes());
     }
 }

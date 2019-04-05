@@ -8,7 +8,7 @@ public class Factory {
     public static String REQUEST_ELBOW_NAME = "elbow";
     public static String REQUEST_HIP_NAME = "hip";
     public static String REQUEST_KNEE_NAME = "knee";
-    public static String RESULT_NAME = "result";//"amq.rabbitmq.reply-to";
+    public static String RESULT_NAME = "result";
     public static String INFO_NAME = "info";
 
     private static Connection connection;
