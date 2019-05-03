@@ -33,7 +33,7 @@ module Bank {
     };
 
     struct RegistrationInfo {
-            bool isPremium
+            bool isPremium;
             string key;
         }
 

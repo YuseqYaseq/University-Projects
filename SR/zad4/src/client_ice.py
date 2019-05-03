@@ -207,9 +207,9 @@ if 'LoanNotAllowed' not in _M_Bank.__dict__:
     _M_Bank.LoanNotAllowed = LoanNotAllowed
     del LoanNotAllowed
 
-if 'CurrencyNotSupported' not in _M_Bank.__dict__:
-    _M_Bank.CurrencyNotSupported = Ice.createTempClass()
-    class CurrencyNotSupported(Ice.UserException):
+if 'CurrencyNoctSupported' not in _M_Bank.__dict__:
+    _M_Bank.CurrencyNoctSupported = Ice.createTempClass()
+    class CurrencyNoctSupported(Ice.UserException):
         def __init__(self):
             pass
 
@@ -218,13 +218,13 @@ if 'CurrencyNotSupported' not in _M_Bank.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Bank::CurrencyNotSupported'
+        _ice_id = '::Bank::CurrencyNoctSupported'
 
-    _M_Bank._t_CurrencyNotSupported = IcePy.defineException('::Bank::CurrencyNotSupported', CurrencyNotSupported, (), False, None, ())
-    CurrencyNotSupported._ice_type = _M_Bank._t_CurrencyNotSupported
+    _M_Bank._t_CurrencyNoctSupported = IcePy.defineException('::Bank::CurrencyNoctSupported', CurrencyNoctSupported, (), False, None, ())
+    CurrencyNoctSupported._ice_type = _M_Bank._t_CurrencyNoctSupported
 
-    _M_Bank.CurrencyNotSupported = CurrencyNotSupported
-    del CurrencyNotSupported
+    _M_Bank.CurrencyNoctSupported = CurrencyNoctSupported
+    del CurrencyNoctSupported
 
 if 'IncorrectCredentials' not in _M_Bank.__dict__:
     _M_Bank.IncorrectCredentials = Ice.createTempClass()
@@ -397,24 +397,81 @@ if 'AccountPrx' not in _M_Bank.__dict__:
 if 'RegistrationInfo' not in _M_Bank.__dict__:
     _M_Bank.RegistrationInfo = Ice.createTempClass()
     class RegistrationInfo(object):
-        def __init__(self, account=None, key=''):
-            self.account = account
+        def __init__(self, isPremium=False, key=''):
+            self.isPremium = isPremium
             self.key = key
 
-        def __eq__(self, other):
+        def __hash__(self):
+            _h = 0
+            _h = 5 * _h + Ice.getHash(self.isPremium)
+            _h = 5 * _h + Ice.getHash(self.key)
+            return _h % 0x7fffffff
+
+        def __compare(self, other):
             if other is None:
-                return False
+                return 1
             elif not isinstance(other, _M_Bank.RegistrationInfo):
                 return NotImplemented
             else:
-                if self.account != other.account:
-                    return False
-                if self.key != other.key:
-                    return False
-                return True
+                if self.isPremium is None or other.isPremium is None:
+                    if self.isPremium != other.isPremium:
+                        return (-1 if self.isPremium is None else 1)
+                else:
+                    if self.isPremium < other.isPremium:
+                        return -1
+                    elif self.isPremium > other.isPremium:
+                        return 1
+                if self.key is None or other.key is None:
+                    if self.key != other.key:
+                        return (-1 if self.key is None else 1)
+                else:
+                    if self.key < other.key:
+                        return -1
+                    elif self.key > other.key:
+                        return 1
+                return 0
+
+        def __lt__(self, other):
+            r = self.__compare(other)
+            if r is NotImplemented:
+                return r
+            else:
+                return r < 0
+
+        def __le__(self, other):
+            r = self.__compare(other)
+            if r is NotImplemented:
+                return r
+            else:
+                return r <= 0
+
+        def __gt__(self, other):
+            r = self.__compare(other)
+            if r is NotImplemented:
+                return r
+            else:
+                return r > 0
+
+        def __ge__(self, other):
+            r = self.__compare(other)
+            if r is NotImplemented:
+                return r
+            else:
+                return r >= 0
+
+        def __eq__(self, other):
+            r = self.__compare(other)
+            if r is NotImplemented:
+                return r
+            else:
+                return r == 0
 
         def __ne__(self, other):
-            return not self.__eq__(other)
+            r = self.__compare(other)
+            if r is NotImplemented:
+                return r
+            else:
+                return r != 0
 
         def __str__(self):
             return IcePy.stringify(self, _M_Bank._t_RegistrationInfo)
@@ -422,7 +479,7 @@ if 'RegistrationInfo' not in _M_Bank.__dict__:
         __repr__ = __str__
 
     _M_Bank._t_RegistrationInfo = IcePy.defineStruct('::Bank::RegistrationInfo', RegistrationInfo, (), (
-        ('account', (), _M_Bank._t_AccountPrx),
+        ('isPremium', (), IcePy._t_bool),
         ('key', (), IcePy._t_string)
     ))
 
@@ -446,6 +503,30 @@ if 'FactoryPrx' not in _M_Bank.__dict__:
 
         def end_createAccount(self, _r):
             return _M_Bank.Factory._op_createAccount.end(self, _r)
+
+        def login(self, id, context=None):
+            return _M_Bank.Factory._op_login.invoke(self, ((id, ), context))
+
+        def loginAsync(self, id, context=None):
+            return _M_Bank.Factory._op_login.invokeAsync(self, ((id, ), context))
+
+        def begin_login(self, id, _response=None, _ex=None, _sent=None, context=None):
+            return _M_Bank.Factory._op_login.begin(self, ((id, ), _response, _ex, _sent, context))
+
+        def end_login(self, _r):
+            return _M_Bank.Factory._op_login.end(self, _r)
+
+        def logout(self, context=None):
+            return _M_Bank.Factory._op_logout.invoke(self, ((), context))
+
+        def logoutAsync(self, context=None):
+            return _M_Bank.Factory._op_logout.invokeAsync(self, ((), context))
+
+        def begin_logout(self, _response=None, _ex=None, _sent=None, context=None):
+            return _M_Bank.Factory._op_logout.begin(self, ((), _response, _ex, _sent, context))
+
+        def end_logout(self, _r):
+            return _M_Bank.Factory._op_logout.end(self, _r)
 
         @staticmethod
         def checkedCast(proxy, facetOrContext=None, context=None):
@@ -479,6 +560,12 @@ if 'FactoryPrx' not in _M_Bank.__dict__:
         def createAccount(self, name, surname, threshold, id, current=None):
             raise NotImplementedError("servant method 'createAccount' not implemented")
 
+        def login(self, id, current=None):
+            raise NotImplementedError("servant method 'login' not implemented")
+
+        def logout(self, current=None):
+            raise NotImplementedError("servant method 'logout' not implemented")
+
         def __str__(self):
             return IcePy.stringify(self, _M_Bank._t_FactoryDisp)
 
@@ -488,6 +575,8 @@ if 'FactoryPrx' not in _M_Bank.__dict__:
     Factory._ice_type = _M_Bank._t_FactoryDisp
 
     Factory._op_createAccount = IcePy.Operation('createAccount', Ice.OperationMode.Normal, Ice.OperationMode.Normal, False, None, (), (((), IcePy._t_string, False, 0), ((), IcePy._t_string, False, 0), ((), IcePy._t_long, False, 0), ((), IcePy._t_long, False, 0)), (), ((), _M_Bank._t_RegistrationInfo, False, 0), (_M_Bank._t_UserAlreadyExists,))
+    Factory._op_login = IcePy.Operation('login', Ice.OperationMode.Normal, Ice.OperationMode.Normal, False, None, (), (((), IcePy._t_long, False, 0),), (), None, (_M_Bank._t_IncorrectCredentials,))
+    Factory._op_logout = IcePy.Operation('logout', Ice.OperationMode.Normal, Ice.OperationMode.Normal, False, None, (), (), (), None, ())
 
     _M_Bank.Factory = Factory
     del Factory
