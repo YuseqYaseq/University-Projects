@@ -19,7 +19,7 @@ module Bank {
     }
 
     exception LoanNotAllowed {}
-    exception CurrencyNotSupported {}
+    exception CurrencyNoctSupported {}
     exception IncorrectCredentials {}
     exception UserAlreadyExists {}
     exception InsufficientFunds {}
@@ -33,11 +33,13 @@ module Bank {
     };
 
     struct RegistrationInfo {
-            Account* account;
+            bool isPremium
             string key;
         }
 
     interface Factory {
         RegistrationInfo createAccount(string name, string surname, long threshold, long id) throws UserAlreadyExists;
+        void login(long id) throws IncorrectCredentials;
+        void logout();
     }
 }
