@@ -66,7 +66,6 @@ public class CurrencyExchangeImpl extends CurrencyExchangeImplBase {
     @Override
     public void getValue(CurrencyArguments request, StreamObserver<CurrencyResult> responseObserver) {
         logger.info("Info requested for " + request.getReferenceCurrency());
-        responseObserver.onError(new NullPointerException());
         for(int its = 0; its < NUM_OF_ITERATIONS; ++its) {
             List<Currency> currencyInfo = new ArrayList<>();
             for (int i = 0; i < request.getCurrenciesCount(); ++i) {

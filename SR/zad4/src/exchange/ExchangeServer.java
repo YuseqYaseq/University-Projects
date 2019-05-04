@@ -10,7 +10,7 @@ public class ExchangeServer {
 
     private static final Logger logger = Logger.getLogger(ExchangeServer.class.getName());
 
-    private int port = 50051;
+    private int port = 5060;
     private Server server;
 
     private void start() throws IOException {
