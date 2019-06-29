@@ -1,0 +1,71 @@
+FUNCTION_BLOCK car
+    VAR_INPUT
+        front_distance : REAL;
+        close_left_distance : REAL;
+        close_right_distance : REAL;
+        far_left_distance : REAL;
+        far_right_distance : REAL;
+    END_VAR
+
+    VAR_OUTPUT
+        move : REAL;
+    END_VAR
+
+    FUZZIFY front_distance
+        TERM low := (0, 1)(2, 0.1);
+        TERM medium := (1.8, 0)(4, 1)(6, 0);
+        TERM high := (4, 0)(7, 1)(100, 1);
+    END_FUZZIFY
+
+    FUZZIFY close_left_distance
+        TERM low := (0, 1)(2, 0.1);
+        TERM medium := (1.8, 0)(4, 1)(6, 0);
+        TERM high := (4, 0)(7, 1)(100, 1);
+    END_FUZZIFY
+
+    FUZZIFY close_right_distance
+        TERM low := (0, 1)(2, 0.1);
+        TERM medium := (1.8, 0)(4, 1)(6, 0);
+        TERM high := (4, 0)(7, 1)(100, 1);
+    END_FUZZIFY
+
+    FUZZIFY far_left_distance
+        TERM low := (0, 1)(2, 0.1);
+        TERM medium := (1.8, 0)(4, 1)(6, 0);
+        TERM high := (4, 0)(7, 1)(100, 1);
+    END_FUZZIFY
+
+    FUZZIFY far_right_distance
+        TERM low := (0, 1)(2, 0.1);
+        TERM medium := (1.8, 0)(4, 1)(6, 0);
+        TERM high := (4, 0)(7, 1)(100, 1);
+    END_FUZZIFY
+
+    DEFUZZIFY move
+            TERM left  := (-1, 1)(0, 0);
+            TERM wait  := (-0.33, 0)(0, 1)(0.33, 0);
+            TERM right := (0, 0)(1, 1);
+    END_DEFUZZIFY
+
+    RULEBLOCK No1
+        AND: MIN;
+        RULE 1: IF front_distance IS high THEN move is wait;
+        RULE 2: IF front_distance IS NOT high AND front_distance IS medium AND close_left_distance IS high THEN move is left;
+        RULE 3: IF front_distance IS NOT high AND front_distance IS medium AND close_left_distance IS NOT high AND close_right_distance IS high THEN move is right;
+        RULE 4: IF front_distance IS NOT high AND front_distance IS medium AND far_left_distance IS high AND close_left_distance IS NOT low THEN move is left;
+        RUlE 5: IF front_distance IS NOT high AND front_distance IS medium AND far_left_distance IS NOT high AND far_right_distance IS high AND close_right_distance IS NOT low THEN move is right;
+        RULE 6: IF front_distance IS NOT high AND front_distance IS medium THEN move is wait;
+        RULE 7: IF front_distance IS NOT high AND front_distance IS NOT medium AND front_distance IS low AND close_left_distance IS medium THEN move is left;
+        RULE 8: IF front_distance IS NOT high AND front_distance IS NOT medium AND front_distance IS low AND close_left_distance IS NOT medium AND close_right_distance IS medium THEN move is right;
+        RULE 9: IF front_distance IS NOT high AND front_distance IS NOT medium AND front_distance IS low AND close_left_distance IS high THEN move is left;
+        RULE 10: IF front_distance IS NOT high AND front_distance IS NOT medium AND front_distance IS low AND close_left_distance IS NOT high AND close_right_distance IS high THEN move is right;
+        RULE 11: IF front_distance IS NOT high AND front_distance IS NOT medium AND front_distance IS low AND far_left_distance IS NOT low THEN move is left;
+        RULE 12: IF front_distance IS NOT high AND front_distance IS NOT medium AND
+        front_distance IS low AND far_left_distance IS low AND close_right_distance IS NOT low THEN move is right;
+    END_RULEBLOCK
+
+END_FUNCTION_BLOCK
+
+
+
+
