@@ -15,9 +15,9 @@ import java.util.logging.Logger;
 public class CurrencyExchangeImpl extends CurrencyExchangeImplBase {
 
     private static final int NUM_OF_CURRENCIES = 6;
-    private static final int NUM_OF_ITERATIONS = 100;
+    private static final int NUM_OF_ITERATIONS = 1000;
     private static final int CHANGE_INVERVAL = 2000;
-    private static final int SEND_INVERVAL = 3000;
+    private static final int SEND_INVERVAL = 2000;
 
     private Random random = new Random();
     private Logger logger = Logger.getLogger(CurrencyExchangeImpl.class.getName());
