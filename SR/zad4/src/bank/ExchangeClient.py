@@ -5,6 +5,7 @@ from proto_out.exchange_pb2_grpc import CurrencyExchangeStub
 from proto_out.exchange_pb2 import *
 import Bank
 
+
 class ExchangeClient(object):
 
     def get_exchange_rate(self):
@@ -24,7 +25,8 @@ class ExchangeClient(object):
                     for currency in resp.Results:
                         self.exchange_rate[Bank.Currency.valueOf(currency.Type)] = currency.Value
             except grpc.RpcError as e:
-                print(e)
+                print("RPC Error!")
+                print(str(e))
 
     def __init__(self, host, port, native_currency, available_currencies):
         self.exchange_rate = {}

@@ -1,6 +1,8 @@
 import random
 import string
 
+import Ice
+
 import Bank
 from tinydb import TinyDB, Query
 
@@ -25,11 +27,11 @@ class FactoryImpl(Bank.Factory):
 
         self.bank_server.add_account_servant(str(id))
 
-    def logout(self):
-        pass
+    def logout(self, context=None):
+        identity = Ice.stringToIdentity(context.ctx['id'])
+        self.bank_server.remove_account_servant(identity)
 
     def createAccount(self, name, surname, threshold, id, context=None):
-        print(1)
         if self.user_already_exists(id):
             raise Bank.UserAlreadyExists()
 
@@ -37,7 +39,6 @@ class FactoryImpl(Bank.Factory):
             is_premium = True
         else:
             is_premium = False
-        print(2)
         key = self.generate_random_string()
         new_user_info = {'id': id,
                          'name': name,

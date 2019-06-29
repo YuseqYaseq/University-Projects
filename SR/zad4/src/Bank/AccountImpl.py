@@ -19,6 +19,22 @@ def map_currency(str):
     raise NotImplementedError(str)
 
 
+def map_currency_to_int(str):
+    if str == 'PLN':
+        return 0
+    if str == 'EUR':
+        return 1
+    if str == 'USD':
+        return 2
+    if str == 'GBP':
+        return 3
+    if str == 'CHF':
+        return 4
+    if str == 'JPY':
+        return 5
+    raise NotImplementedError(str)
+
+
 class AccountImpl(Bank.Account):
 
     def __init__(self, db_name, supported_currencies, exchange_client):

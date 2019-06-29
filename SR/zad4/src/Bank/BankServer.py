@@ -15,6 +15,8 @@ class BankServer(object):
         self.adapter.add(account, self.communicator.stringToIdentity(account_identifier))
         return account
 
+    def remove_account_servant(self, account_identifier):
+        self.adapter.remove(account_identifier)
 
     def _start_service(self, name, port):
         self.communicator = Ice.initialize()

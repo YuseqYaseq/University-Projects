@@ -19,12 +19,15 @@ class BankClient(object):
             self.account = None
             self.key = None
             self.id = None
+            self.failed = False
             if not self.factory:
                 print("Failed to connect to factory servant!")
             thread = Thread(target=self._start_service)
             thread.start()
         except Exception:
             print("Failed to connect to bank service! Try again later.")
+            self.communicator.destroy()
+            self.failed = True
 
     def _start_service(self):
         self.communicator.waitForShutdown()
@@ -108,7 +111,8 @@ class BankClient(object):
             print("Incorrect credentials!")
 
     def logout(self):
-        self.account = None
-        self.key = None
-        self.id = None
-        self.factory.logout()
+        if self.account:
+            self.factory.logout(context={'id': str(self.id)})
+            self.account = None
+            self.key = None
+            self.id = None
