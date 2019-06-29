@@ -1,6 +1,7 @@
 .idea/
 out/
 lib/
+venv/
 *.iml
 node_modules/
 
