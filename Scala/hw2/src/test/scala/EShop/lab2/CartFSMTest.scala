@@ -126,28 +126,28 @@ object CartFSMTest {
   val inCheckoutMsg = "inCheckout"
 
   def cartActorWithCartSizeResponseOnStateChange(system: ActorSystem) =
-    system.actorOf(Props(new CartFSM {
+    system.actorOf(Props(new CartFSM(null) {
 
       onTransition {
         case Empty -> NonEmpty => {
           sender ! nonEmptyMsg
-          sender ! stateData.size
+          sender ! stateData._1.size
         }
         case NonEmpty -> InCheckout => {
           sender ! inCheckoutMsg
-          sender ! stateData.size
+          sender ! stateData._1.size
         }
         case NonEmpty -> Empty => {
           sender ! emptyMsg
-          sender ! stateData.size
+          sender ! stateData._1.size
         }
         case InCheckout -> NonEmpty => {
           sender ! nonEmptyMsg
-          sender ! stateData.size
+          sender ! stateData._1.size
         }
         case InCheckout -> Empty =>
           sender ! emptyMsg
-          sender ! stateData.size
+          sender ! stateData._1.size
       }
     }))
 }

@@ -1,6 +1,7 @@
 package EShop.lab2
 
 import EShop.lab2.Checkout._
+import EShop.lab2.CheckoutFSM.CheckoutFSMParams
 import EShop.lab2.CheckoutFSM.Status._
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestFSMRef, TestKit}
@@ -37,7 +38,7 @@ class CheckoutFSMTest
   }
 
   it should "be in cancelled state after expire checkout timeout in selectingDelivery state" in {
-    val checkoutActor = TestFSMRef[Status, Data, CheckoutFSM](new CheckoutFSM())
+    val checkoutActor = TestFSMRef[Status, CheckoutFSMParams, CheckoutFSM](new CheckoutFSM(null, null))
 
     checkoutActor ! StartCheckout
     Thread.sleep(2000)
@@ -102,7 +103,7 @@ class CheckoutFSMTest
   }
 
   it should "be in cancelled state after expire checkout timeout in processingPayment state" in {
-    val checkoutActor = TestFSMRef[Status, Data, CheckoutFSM](new CheckoutFSM())
+    val checkoutActor = TestFSMRef[Status, CheckoutFSMParams, CheckoutFSM](new CheckoutFSM(null, null))
 
     checkoutActor ! StartCheckout
     checkoutActor ! SelectDeliveryMethod(deliveryMethod)
@@ -152,7 +153,7 @@ object CheckoutFSMTest {
   val closedMsg                 = "closed"
 
   def checkoutActorWithResponseOnStateChange(system: ActorSystem): ActorRef =
-    system.actorOf(Props(new CheckoutFSM {
+    system.actorOf(Props(new CheckoutFSM(null, null) {
 
       onTransition {
         case NotStarted -> SelectingDelivery =>
