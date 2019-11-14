@@ -126,11 +126,11 @@ for i, img in enumerate(imgs):
     plt.savefig("imgs//orig" + str(i))
 
     # HW part 1
-    '''for title, mask in masks:
+    for title, mask in masks:
         result = calc(x, mask)
         plt.imshow(result)
         plt.title(title)
-        plt.savefig("imgs//" + title + str(i))'''
+        plt.savefig("imgs//" + title + str(i))
 
     # HW part 2
     
