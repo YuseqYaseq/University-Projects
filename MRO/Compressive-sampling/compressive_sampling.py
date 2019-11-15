@@ -199,7 +199,6 @@ def task2_3(x, sample_size, no_tries, img_no):
     Dla każdego piksela pokaż jaki był średni błąd jego rekonstrukcji (inaczej mówiąc - narysuj heatmapę pokazującą średni błąd w tym miejscu obrazu).
     Z rekonstrukcją których pikseli jest zwykle największy problem?
     '''
-    (nx, ny) = x.shape
     diff = np.zeros(x.shape)
     for i in range(no_tries):
         recreated_img, _, _ = mask_and_recreate_image(sample_size, x)
@@ -210,9 +209,16 @@ def task2_3(x, sample_size, no_tries, img_no):
     plt.savefig("imgs//heatmap" + str(img_no))
 
 
-def task2_4():
-    ''' Zmniejsz startową rozdzielczość fotografii, wykonaj taki sam wykres zależności błędu od k jak dwa punkty wcześniej. Czy coś się zmieniło?'''
-    pass
+def task2_4(x, new_image_size, sample_sizes, img_no):
+    '''
+    Zmniejsz startową rozdzielczość fotografii.
+    Wykonaj taki sam wykres zależności błędu od k jak dwa punkty wcześniej.
+    Czy coś się zmieniło?
+    '''
+    
+    x = cv2.resize(x, new_image_size)
+    task2_2(x, sample_sizes, 1000 + img_no)  # Different img_no to make sure we don't overwrite task2_2 results
+    
 
 
 def task2_5():
@@ -254,16 +260,21 @@ def main():
     for i, path in enumerate(imgs):
         
         x = generate_img(path, "orig" + str(i), nx, ny)
-        #task1(masks, x, i)
+        task1(masks, x, i)
 
-        sample_sizes = [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
-        #task2_2(x, sample_sizes, i)
+        sample_sizes = [.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+        task2_2(x, sample_sizes, i)
         
         sample_size = 0.5
         no_tries = 10
-        #task2_3(x, sample_size, no_tries, i)
+        task2_3(x, sample_size, no_tries, i)
         
-        task2_6(x, np.s_[450:550, 450:550], i)
+        sample_sizes = sample_sizes
+        new_image_size = (250, 250)
+        task2_4(x, new_image_size, sample_sizes, i)
+        
+        slice = np.s_[450:550, 450:550]
+        task2_6(x, slice, i)
 
 
 main()
