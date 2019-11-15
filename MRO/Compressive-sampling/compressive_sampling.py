@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -7,6 +8,7 @@ import scipy.ndimage as spimg
 import cvxpy as cvx
 import cv2
 from pylbfgs import owlqn
+from textwrap import wrap
 
 
 def dct2(x):
@@ -15,6 +17,17 @@ def dct2(x):
 
 def idct2(x):
     return spfft.idct(spfft.idct(x.T, norm='ortho', axis=0).T, norm='ortho', axis=0)
+
+
+def generate_img(path, save_as, nx, ny):
+    x = cv2.imread(path)  # read img
+    x = cv2.resize(x, (nx, ny))  # scale down
+    x = cv2.cvtColor(x, cv2.COLOR_BGR2GRAY)  # to grayscale
+    plt.imshow(x)
+    plt.title("Oryginalny obraz")
+    plt.savefig("imgs//" + save_as)
+    plt.close()
+    return x
 
 
 def create_masks(nx, ny):
@@ -61,14 +74,6 @@ def create_masks(nx, ny):
     return masks
 
 
-def remove_n_pixels(image: np.ndarray, no_of_zeros: int):
-    selected_pixels = np.array([0] * no_of_zeros + [1] * (image.size - no_of_zeros))
-    np.random.shuffle(selected_pixels)
-    selected_pixels = selected_pixels.reshape(image.shape)
-    image = np.multiply(image, selected_pixels)
-    return image
-
-
 def calc(x, mask):
     freq = dct2(x)
     freq = np.multiply(freq, mask)
@@ -76,94 +81,184 @@ def calc(x, mask):
     return result
 
 
-def evaluate(x, g, step, nx=1000, ny=1000, ):
-    """An in-memory evaluation callback."""
-
-    # we want to return two things: 
-    # (1) the norm squared of the residuals, sum((Ax-b).^2), and
-    # (2) the gradient 2*A'(Ax-b)
-
-    # expand x columns-first
-    print(x.shape)
-    x2 = x.reshape((nx, ny)).T
-
-    # Ax is just the inverse 2D dct of x2
-    Ax2 = idct2(x2)
-
-    # stack columns and extract samples
-    Ax = Ax2.T.flat[ri].reshape(b.shape)
-
-    # calculate the residual Ax-b and its 2-norm squared
-    Axb = Ax - b
-    fx = np.sum(np.power(Axb, 2))
-
-    # project residual vector (k x 1) onto blank image (ny x nx)
-    Axb2 = np.zeros(x2.shape)
-    Axb2.T.flat[ri] = Axb # fill columns-first
-
-    # A'(Ax-b) is just the 2D dct of Axb2
-    AtAxb2 = 2 * dct2(Axb2)
-    AtAxb = AtAxb2.T.reshape(x.shape) # stack columns
-
-    # copy over the gradient vector
-    np.copyto(g, AtAxb)
-
-    return fx
-
-
-nx = 1000
-ny = 1000
-imgs = ['a.jpg', 'b.jpg', 'c.jpg']
-masks = create_masks(nx, ny)
-
-
-for i, img in enumerate(imgs):
-    x = cv2.imread(img)  # read img
-    x = cv2.resize(x, (nx, ny))  # scale down
-    x = cv2.cvtColor(x, cv2.COLOR_BGR2GRAY)  # to grayscale
-    plt.imshow(x)
-    plt.title("Oryginalny obraz")
-    plt.savefig("imgs//orig" + str(i))
-
-    # HW part 1
+def task1(masks, x, img_no):
     for title, mask in masks:
         result = calc(x, mask)
         plt.imshow(result)
         plt.title(title)
-        plt.savefig("imgs//" + title + str(i))
+        plt.savefig("imgs//" + title + str(img_no))
 
-    # HW part 2
-    
-    # fractions of the scaled image to randomly sample at
-    sample_sizes = (0.1, 0.01)
-    
-    # for each sample size
+
+class Evaluator:
+
+    def __init__(self, nx, ny, ri, b):
+        self.nx = nx
+        self.ny = ny
+        self.ri = ri
+        self.b = b
+
+    def evaluate(self, x, g, step):
+        """An in-memory evaluation callback."""
+
+        # we want to return two things: 
+        # (1) the norm squared of the residuals, sum((Ax-b).^2), and
+        # (2) the gradient 2*A'(Ax-b)
+
+        # expand x columns-first
+        print(x.shape)
+        x2 = x.reshape((self.nx, self.ny)).T
+
+        # Ax is just the inverse 2D dct of x2
+        Ax2 = idct2(x2)
+
+        # stack columns and extract samples
+        Ax = Ax2.T.flat[self.ri].reshape(self.b.shape)
+
+        # calculate the residual Ax-b and its 2-norm squared
+        Axb = Ax - self.b
+        fx = np.sum(np.power(Axb, 2))
+
+        # project residual vector (k x 1) onto blank image (ny x nx)
+        Axb2 = np.zeros(x2.shape)
+        Axb2.T.flat[self.ri] = Axb # fill columns-first
+
+        # A'(Ax-b) is just the 2D dct of Axb2
+        AtAxb2 = 2 * dct2(Axb2)
+        AtAxb = AtAxb2.T.reshape(x.shape) # stack columns
+
+        # copy over the gradient vector
+        np.copyto(g, AtAxb)
+
+        return fx
+
+
+def mask_and_recreate_image(s, img):
+    nx, ny = img.shape
+    # create random sampling index vector
+    k = round(nx * ny * s)
+    ri = np.random.choice(nx * ny, k, replace=False)  # random sample of indices
+    print("ri = " + str(ri))
+    # create images of mask (for visualization)
+    Xm = 255 * np.ones(img.shape)
+    Xm.T.flat[ri] = img.T.flat[ri]
+    mask = Xm
+
+    # take random samples of image, store them in a vector b
+    b = img.T.flat[ri].astype(float)
+
+    # perform the L1 minimization in memory
+    evaluator = Evaluator(nx, ny, ri, b)
+    Xat2 = owlqn(nx*ny, evaluator.evaluate, None, 5)
+
+    # transform the output back into the spatial domain
+    Xat = Xat2.reshape(nx, ny).T # stack columns
+    Xa = idct2(Xat)
+    recovered_image = Xa.astype('uint8')
+    diff = np.square(np.subtract(recovered_image, img)).mean()
+    return recovered_image,  mask, diff
+
+
+def task2_2(x, sample_sizes, img_no):
+    '''
+    Wybierzmy losowo k% pikseli z oryginalnej fotografii.
+    Odtwórzmy całą fotografię z użyciem CS.
+    Obliczmy różnicę między pierwotnym obrazem, a tym uzyskanym po rekonstrukcji.
+    Przygotujmy wykres tej różnicy w zależności od k (czyli % dostępnych na starcie pikseli).
+    '''
+    (nx, ny) = x.shape
+    diffs = []
     Z = [np.zeros(x.shape, dtype='uint8') for s in sample_sizes]
     masks = [np.zeros(x.shape, dtype='uint8') for s in sample_sizes]
     for j,s in enumerate(sample_sizes):
-
-        # create random sampling index vector
-        k = round(nx * ny * s)
-        ri = np.random.choice(nx * ny, k, replace=False) # random sample of indices
-
-        # create images of mask (for visualization)
-        Xm = 255 * np.ones(x.shape)
-        Xm.T.flat[ri] = x.T.flat[ri]
-        masks[j][:,:] = Xm
-
-        # take random samples of image, store them in a vector b
-        b = x.T.flat[ri].astype(float)
-
-        # perform the L1 minimization in memory
-        Xat2 = owlqn(nx*ny, evaluate, None, 5)
-
-        # transform the output back into the spatial domain
-        Xat = Xat2.reshape(nx, ny).T # stack columns
-        Xa = idct2(Xat)
-        Z[j][:,:] = Xa.astype('uint8')
+        Z[j], masks[j], diff = mask_and_recreate_image(s, x)
+        diffs.append(diff)
         plt.imshow(Z[j])
         plt.title("Odtwarzanie obrazu z próbki " + str(s * 100) + "% obrazu")
-        plt.savefig("imgs//Z" + str(j) + str(i))
-        plt.imshow(Xm)
+        plt.savefig("imgs//Z" + str(j) + str(img_no))
+        plt.close()
+        plt.imshow(masks[j])
         plt.title("Maska pozostawiająca " + str(s * 100) + "% obrazu")
-        plt.savefig("imgs//Mask" + str(j) + str(i))
+        plt.savefig("imgs//Mask" + str(j) + str(img_no))
+        plt.close()
+    plt.plot(sample_sizes, diffs, label="Procent samplowanego obrazu")
+    plt.legend(loc='best')
+    plt.title("Różnica między odtworzonym obrazem a oryginałem")
+    plt.savefig("imgs//diff" + str(img_no))
+    plt.close()
+
+
+def task2_3(x, sample_size, no_tries, img_no):
+    '''
+    Dla wartości k, gdzie błąd jest jeszcze tolerowalnie niewielki powtórz eksperyment wielokrotnie.
+    Dla każdego piksela pokaż jaki był średni błąd jego rekonstrukcji (inaczej mówiąc - narysuj heatmapę pokazującą średni błąd w tym miejscu obrazu).
+    Z rekonstrukcją których pikseli jest zwykle największy problem?
+    '''
+    (nx, ny) = x.shape
+    diff = np.zeros(x.shape)
+    for i in range(no_tries):
+        recreated_img, _, _ = mask_and_recreate_image(sample_size, x)
+        diff += np.square(np.subtract(recreated_img, x))
+    plt.imshow(diff)
+    plt.title("Mapa cieplna różnic między oryginałem\na obrazem odzyskanym z próbki " + str(sample_size * 100) + "% obrazu")
+    plt.tight_layout()
+    plt.savefig("imgs//heatmap" + str(img_no))
+
+
+def task2_4():
+    ''' Zmniejsz startową rozdzielczość fotografii, wykonaj taki sam wykres zależności błędu od k jak dwa punkty wcześniej. Czy coś się zmieniło?'''
+    pass
+
+
+def task2_5():
+    '''
+    Zmień sposób próbkowania z jednolitego na całej powierzchni na taki, który bardziej koncentruje się na środku (np. w oparciu o rozkład normalny). 
+    Jak to wpływa na uzyskiwane rekonstrukcje?
+    '''
+    pass
+
+
+def task2_6(x, img_no):
+    '''
+    Usuń niezbyt duży prostokąt z centrum zdjęcia, użyj wszystkich pozostałych pikseli jako próbek do procedury CS.
+    Jak został zrekonstruowany ten usunięty obszar?
+    '''
+    
+    # Copy image not to modify the original
+    x = x.copy()
+    x[450:500, 450:500] = 0
+    plt.imshow(x)
+    plt.title("Obraz z usuniętym fragmentem")
+    plt.savefig("imgs//hole" + str(img_no))
+    plt.close()
+    
+    _, recreated_img, _ = mask_and_recreate_image(1, x)
+    plt.imshow(recreated_img)
+    plt.title("Odtworzony obraz")
+    plt.savefig("imgs//hole_removed" + str(img_no))
+    plt.close()
+    
+    
+
+def main():
+    nx = 1000
+    ny = 1000
+    imgs = ['a.jpg', 'b.jpg', 'c.jpg']
+    masks = create_masks(nx, ny)
+
+    for i, path in enumerate(imgs):
+        
+        x = generate_img(path, "orig" + str(i), nx, ny)
+        #task1(masks, x, i)
+
+        sample_sizes = [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+        #task2_2(x, sample_sizes, i)
+        
+        sample_size = 0.5
+        no_tries = 10
+        #task2_3(x, sample_size, no_tries, i)
+        
+        task2_6(x, i)
+
+
+print("DZI
+main()
