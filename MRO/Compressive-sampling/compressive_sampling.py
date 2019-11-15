@@ -132,12 +132,17 @@ class Evaluator:
         return fx
 
 
-def mask_and_recreate_image(s, img):
+def mask_and_recreate_image(s, img, special_mask:np.s_=None):
     nx, ny = img.shape
     # create random sampling index vector
     k = round(nx * ny * s)
-    ri = np.random.choice(nx * ny, k, replace=False)  # random sample of indices
-    print("ri = " + str(ri))
+    if special_mask is None:
+        ri = np.random.choice(nx * ny, k, replace=False)  # random sample of indices
+    else:
+        ri = np.arange(nx * ny).reshape((nx, ny))
+        ri[special_mask] = -1
+        ri.flatten()
+        ri = ri[ri != -1]
     # create images of mask (for visualization)
     Xm = 255 * np.ones(img.shape)
     Xm.T.flat[ri] = img.T.flat[ri]
@@ -147,6 +152,7 @@ def mask_and_recreate_image(s, img):
     b = img.T.flat[ri].astype(float)
 
     # perform the L1 minimization in memory
+    evaluator = Evaluator(nx, ny, ri, b)
     evaluator = Evaluator(nx, ny, ri, b)
     Xat2 = owlqn(nx*ny, evaluator.evaluate, None, 5)
 
@@ -217,7 +223,7 @@ def task2_5():
     pass
 
 
-def task2_6(x, img_no):
+def task2_6(x, slice, img_no):
     '''
     Usuń niezbyt duży prostokąt z centrum zdjęcia, użyj wszystkich pozostałych pikseli jako próbek do procedury CS.
     Jak został zrekonstruowany ten usunięty obszar?
@@ -225,13 +231,13 @@ def task2_6(x, img_no):
     
     # Copy image not to modify the original
     x = x.copy()
-    x[450:500, 450:500] = 0
+    x[slice] = 0
     plt.imshow(x)
     plt.title("Obraz z usuniętym fragmentem")
     plt.savefig("imgs//hole" + str(img_no))
     plt.close()
     
-    _, recreated_img, _ = mask_and_recreate_image(1, x)
+    recreated_img, _, _ = mask_and_recreate_image(1, x, slice)
     plt.imshow(recreated_img)
     plt.title("Odtworzony obraz")
     plt.savefig("imgs//hole_removed" + str(img_no))
@@ -257,8 +263,7 @@ def main():
         no_tries = 10
         #task2_3(x, sample_size, no_tries, i)
         
-        task2_6(x, i)
+        task2_6(x, np.s_[450:550, 450:550], i)
 
 
-print("DZI
 main()
